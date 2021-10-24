@@ -45,7 +45,7 @@ public class JWTRepository implements CsrfTokenRepository{
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         String token = "";
-        token = Jwt.withTokenValue()
+        token = Jwt.withTokenValue("1")
                    .expiresAt(exp.toInstant())
                    .issuedAt(now.toInstant())
                    .jti(id)
