@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class InitController {
     
     public String index(Model model){
-        
         return "index";
     }
     
