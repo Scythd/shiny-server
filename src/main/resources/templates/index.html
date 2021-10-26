@@ -4,7 +4,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<html>
+<html >
 
     <head>
         <title></title>
@@ -12,10 +12,10 @@ and open the template in the editor.
     </head>
 
     <body>
-        <p data-th-text="#{welcome}">Welcome!</p>
+        <p>Welcome!</p>
     </body>
-    <form data-th-action="/">
-        <input type="text" id="_csrf"/>
+    <form data-th-action="@{/}">
+        <input type="text" data-th-name="#{_csrf.parameterName}" data-th-value="#{_csrf.token}">
     </form>
 
 </html>

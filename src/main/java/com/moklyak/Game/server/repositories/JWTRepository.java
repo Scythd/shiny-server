@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -26,8 +27,8 @@ import org.springframework.stereotype.Repository;
  * @author Пользователь
  */
 
-@Repository
-public class JWTRepository implements CsrfTokenRepository{
+//@Repository
+public class JWTRepository implements CsrfTokenRepository {
 
     @Getter
     private String secret;
