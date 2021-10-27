@@ -5,7 +5,7 @@
  */
 package com.moklyak.Game.server.repositories;
 
-import com.moklyak.Game.server.entities.User;
+import com.moklyak.Game.server.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Repository;
  *
  * @author Пользователь
  */
-
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
-    public User findByUsername(String username);
+public interface RoleRepository extends JpaRepository<Role, Long>{
+    Role FindByName(String name);
 }

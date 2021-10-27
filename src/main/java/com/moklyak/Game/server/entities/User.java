@@ -8,21 +8,33 @@ package com.moklyak.Game.server.entities;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import com.moklyak.Game.server.configurations.security.Status;
+import java.util.List;
 
 /**
  *
  * @author Пользователь
  */
-
-@Entity(name = "User")
+@Entity(name = "users")
+@Data
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String login;
+    private String username;
+    private String email;
     private String password;
-    private String firstname;
-    private String lastname;
-    private Integer age;
+    private String nickname;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = {
+                @JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {
+                @JoinColumn(name = "role_id", referencedColumnName = "id")})
+    private List<Role> roles;
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
 }

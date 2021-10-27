@@ -4,18 +4,38 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<html >
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security/"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="thymeleaf/layouts/default">
 
-    <head>
-        <title></title>
+    <head th:replace="~{template1 :: headr}">
+        <title>Application</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" href="./../static"/>
     </head>
 
     <body>
-        <p>Welcome!</p>
+        <header></header>
+        <main>
+            <div>
+                <p>Welcome!</p> 
+                <form th:action="@{/}" th:method="POST">
+                    <input type="text" th:name="attr1" th:value="${attr1}"/>
+                    <input type="submit" value="Submit" name="submit" />
+                </form>
+            </div>
+        </main>
+        <footer>
+            
+        </footer>
+
     </body>
-    <form data-th-action="@{/}">
-        <input type="text" data-th-name="#{_csrf.parameterName}" data-th-value="#{_csrf.token}">
-    </form>
+    <div th:replace="~{template1 :: scripts}">
+        <script src="link"/>
+    </div>
+    
 
 </html>
