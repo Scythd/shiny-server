@@ -45,7 +45,7 @@ public class UserService{
     }
     
     public User register(User user){
-        Role roleUser = roleRepository.FindByName("ROLE_USER");
+        Role roleUser = roleRepository.findByName("ROLE_USER");
         List<Role> userRoles = new ArrayList<>();
         userRoles.add(roleUser);
         

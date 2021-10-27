@@ -6,6 +6,7 @@
 package com.moklyak.Game.server.entities;
 
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,6 +29,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
     
+    @Column(name = "name")
     private String name;
     
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

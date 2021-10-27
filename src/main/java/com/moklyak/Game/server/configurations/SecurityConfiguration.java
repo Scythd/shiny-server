@@ -40,8 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String LOGIN_ENDPOINT = "";
     
     @Autowired
-    public SecurityConfiguration(JwtTokenProvider jwtTokenProvider1){
-        this.jwtTokenProvider = jwtTokenProvider1;
+    public SecurityConfiguration(JwtTokenProvider jwtTokenProvider){
+        this.jwtTokenProvider = jwtTokenProvider;
     }
     
     @Bean
