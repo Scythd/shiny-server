@@ -5,6 +5,7 @@
  */
 package com.moklyak.Game.server.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import lombok.Data;
+import lombok.*;
 
 /**
  *
@@ -22,16 +23,22 @@ import lombok.Data;
  */
 @Entity
 @Table(name = "roles")
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Role {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
     
+   
+    
     @Column(name = "name")
     private String name;
     
+    @JsonBackReference
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<User> users;
 }
