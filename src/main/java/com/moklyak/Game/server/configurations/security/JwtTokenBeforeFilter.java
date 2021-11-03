@@ -19,11 +19,11 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Пользователь
  */
-public class JwtTokenFilter extends GenericFilterBean {
+public class JwtTokenBeforeFilter extends GenericFilterBean {
 
     private JwtTokenProvider jwtTokenProvider;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
+    public JwtTokenBeforeFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 

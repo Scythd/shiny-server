@@ -22,6 +22,7 @@ public class UserDto {
     private String username;
     private String email;
     private String nickname;
+    private String token;
     
     public User toUser(){
         User user = new User();

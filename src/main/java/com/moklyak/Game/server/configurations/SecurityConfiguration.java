@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -35,13 +36,15 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService;
     
     private static final String[] ADMIN_ENDPOINT = {"/api/admin"};
     private static final String[] CLIENT_ENDPOINT = {"/", "/webjars/**", "/assets/**","/api/auth/**"};
     
     @Autowired
-    public SecurityConfiguration(JwtTokenProvider jwtTokenProvider){
+    public SecurityConfiguration(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService){
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userDetailsService = userDetailsService;
     }
     
     @Bean
