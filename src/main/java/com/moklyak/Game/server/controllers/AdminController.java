@@ -5,9 +5,9 @@
  */
 package com.moklyak.Game.server.controllers;
 
+import com.moklyak.Game.server.JDBCTemplates.UserJDBCTemplate;
 import com.moklyak.Game.server.entities.User;
 import com.moklyak.Game.server.models.UserDto;
-import com.moklyak.Game.server.services.UserService;
 import java.io.Serializable;
 import java.net.http.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/admin")
 public class AdminController {
 
-    private final UserService userService;
+    private final UserJDBCTemplate userService;
 
     //private final UserDetailsService userDetailsService;
     @Autowired
-    public AdminController(UserService userService/*, UserDetailsService userDetailsService*/) {
+    public AdminController(UserJDBCTemplate userService/*, UserDetailsService userDetailsService*/) {
         this.userService = userService;
         //this.userDetailsService = userDetailsService;
     }

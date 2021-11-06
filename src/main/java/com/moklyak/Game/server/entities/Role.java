@@ -5,40 +5,27 @@
  */
 package com.moklyak.Game.server.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.With;
 
 /**
  *
  * @author Пользователь
  */
-@Entity
-@Table(name = "roles")
-@Getter
-@Setter
+
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class Role {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
-    
-   
-    
-    @Column(name = "name")
+
+    @With
+    private final Long id;
+
+
     private String name;
+
+    public Role() {
+        this.id = null;
+    }
     
-    @JsonBackReference
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private List<User> users;
 }

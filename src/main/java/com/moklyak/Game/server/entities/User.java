@@ -6,41 +6,41 @@
 package com.moklyak.Game.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import javax.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import com.moklyak.Game.server.configurations.security.Status;
+import java.util.ArrayList;
+import lombok.Data;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.With;
 
 /**
  *
  * @author Пользователь
  */
-@Entity(name = "users")
+//@Entity(name = "users")
 @Data
+@AllArgsConstructor
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @Column(name = "username")
+    @With
+    private final Long id;
+
     private String username;
-    @Column(name = "email")
+
     private String email;
-    @Column(name = "password")
+
     private String password;
-    @Column(name = "nickname")
+
     private String nickname;
 
     @JsonManagedReference
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = {
-                @JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {
-                @JoinColumn(name = "role_id", referencedColumnName = "id")})
-    private List<Role> roles;
-    @Enumerated(EnumType.STRING)
+
+    private List<Role> roles = new ArrayList<>();
+
     private Status status;
+
+    public User() {
+        this.id = null;
+    }
 
 }

@@ -5,10 +5,10 @@
  */
 package com.moklyak.Game.server.controllers;
 
+import com.moklyak.Game.server.JDBCTemplates.UserJDBCTemplate;
 import com.moklyak.Game.server.configurations.security.JwtTokenProvider;
 import com.moklyak.Game.server.entities.User;
 import com.moklyak.Game.server.models.AuthenticationRequestDto;
-import com.moklyak.Game.server.services.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +35,10 @@ public class AuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final UserService userService;
+    private final UserJDBCTemplate userService;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserJDBCTemplate userService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;

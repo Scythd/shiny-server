@@ -10,5 +10,23 @@ package com.moklyak.Game.server.configurations.security;
  * @author Пользователь
  */
 public enum Status {
-    ACTIVE, INACTIVE, DELETED, BANNED;
+    ACTIVE("ACTIVE"), INACTIVE("INACTIVE"), DELETED("DELETED"), BANNED("BANNED");
+
+    private final String status;
+    
+    private Status(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    @Override
+    public String toString() {
+        return status;
+    }
+    
+    
+    
 }

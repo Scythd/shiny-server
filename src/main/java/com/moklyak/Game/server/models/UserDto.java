@@ -26,11 +26,10 @@ public class UserDto {
     
     public User toUser(){
         User user = new User();
-        user.setId(id);
         user.setEmail(email);
         user.setNickname(nickname);
         
-        return user;
+        return user.withId(id);
     }
     
     public static UserDto fromUser(User user){

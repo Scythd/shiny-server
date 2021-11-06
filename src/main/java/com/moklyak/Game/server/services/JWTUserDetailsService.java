@@ -5,6 +5,7 @@
  */
 package com.moklyak.Game.server.services;
 
+import com.moklyak.Game.server.JDBCTemplates.UserJDBCTemplate;
 import com.moklyak.Game.server.configurations.security.JWTUser;
 import com.moklyak.Game.server.configurations.security.JWTUserFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +23,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class JWTUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private final UserJDBCTemplate userService;
 
     @Autowired
-    public JWTUserDetailsService(UserService userService) {
+    public JWTUserDetailsService(UserJDBCTemplate userService) {
         this.userService = userService;
     }
 
