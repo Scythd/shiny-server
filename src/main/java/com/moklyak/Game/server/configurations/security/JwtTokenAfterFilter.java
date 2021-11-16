@@ -18,6 +18,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -45,12 +46,14 @@ public class JwtTokenAfterFilter extends GenericFilterBean {
             if (authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }
-        if (request instanceof HttpServletRequest) {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-            MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(httpRequest);
-            mutableRequest.putHeader("Authorization", token);
-            chain.doFilter(mutableRequest, response);
+            if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+                HttpServletRequest httpRequest = (HttpServletRequest) request;
+                HttpServletResponse httpResponse = (HttpServletResponse) response;
+                MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(httpRequest);
+                httpResponse.addHeader("Authorization", "Bearer_" + token);
+                mutableRequest.putHeader("Authorization", token);
+                chain.doFilter(mutableRequest, response);
+            }
         } else {
             chain.doFilter(request, response);
         }

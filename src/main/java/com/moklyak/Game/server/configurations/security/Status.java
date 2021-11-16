@@ -5,6 +5,8 @@
  */
 package com.moklyak.Game.server.configurations.security;
 
+import java.math.BigInteger;
+
 /**
  *
  * @author Пользователь
@@ -12,6 +14,7 @@ package com.moklyak.Game.server.configurations.security;
 public enum Status {
     ACTIVE("ACTIVE"), INACTIVE("INACTIVE"), DELETED("DELETED"), BANNED("BANNED");
 
+    
     private final String status;
     
     private Status(String status) {
@@ -30,3 +33,4 @@ public enum Status {
     
     
 }
+
