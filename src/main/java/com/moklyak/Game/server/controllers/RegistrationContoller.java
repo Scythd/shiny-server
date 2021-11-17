@@ -39,21 +39,21 @@ public class RegistrationContoller {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final UserJDBCTemplate userService;
+    private final UserJDBCTemplate userJDBCTemplate;
     
     private final RoleJDBCTemplate roleJDBCTemplate;
 
-    public RegistrationContoller(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserJDBCTemplate userService, RoleJDBCTemplate roleJDBCTemplate) {
+    public RegistrationContoller(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider, UserJDBCTemplate userJDBCTemplate, RoleJDBCTemplate roleJDBCTemplate) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userService = userService;
+        this.userJDBCTemplate = userJDBCTemplate;
         this.roleJDBCTemplate = roleJDBCTemplate;
     }
 
     @PostMapping(value = "/register")
     public ResponseEntity register(@RequestBody RegistrationRequestDto requestDto) {
-        User user1 = userService.findByUsername(requestDto.getUsername());
-        if (user1 == null){
+        User user1 = userJDBCTemplate.findByUsername(requestDto.getUsername());
+        if (user1 != null){
             Map<Object, Object> response = new HashMap<>();
             response.put("error","user already exist");
             return ResponseEntity.ok(response);
@@ -67,8 +67,8 @@ public class RegistrationContoller {
             user.setUsername(requestDto.getUsername());
             user.setNickname(requestDto.getNickname());
             user.setEmail(requestDto.getEmail());
-            user.setPassword(requestDto.getPassword());
-            user = userService.save(user);
+            user.setPassword(jwtTokenProvider.passwordEncoder().encode(requestDto.getPassword()));
+            user = userJDBCTemplate.save(user);
             //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
            
             String token = jwtTokenProvider.createToken(username, user.getRoles());

@@ -28,7 +28,6 @@ import org.springframework.stereotype.Repository;
  *
  * @author Пользователь
  */
-
 @Repository
 public class UserJDBCTemplate implements UserDAO {
 
@@ -132,7 +131,7 @@ public class UserJDBCTemplate implements UserDAO {
 
     @Override
     public User save(User user) {
-        List<Role> roles = user.getRoles();
+        List<Role> roles = new ArrayList<>(user.getRoles());
         Role temp;
         for (int i = 0; i < roles.size(); i++) {
             temp = roleDAO.findByName(roles.get(i).getName());
@@ -142,20 +141,14 @@ public class UserJDBCTemplate implements UserDAO {
             roles.set(i, temp);
         }
 
-        StringBuilder query = new StringBuilder();
-        query.append("insert into user_roles (user_id, roles_id) values ");
-        roles.forEach((r) -> query.append("(")
-                .append(user.getId())
-                .append(",")
-                .append(r.getId())
-                .append(")")
-        );
-        query.deleteCharAt(query.length());
+        user.setRoles(roles);
 
-        query.append("; insert into users) ")
+        StringBuilder query = new StringBuilder();
+
+        query.append("insert into users ")
                 .append("(username, password, email, nickname, status) ")
                 .append(" values ")
-                .append("(?, ?, ?, ?, ?) ;");
+                .append("(?, ?, ?, ?, ?);");
         PreparedStatementSetter pss = (ps) -> {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getPassword());
@@ -163,10 +156,25 @@ public class UserJDBCTemplate implements UserDAO {
             ps.setString(4, user.getNickname());
             ps.setString(5, user.getStatus().getStatus());
         };
-        int qr = jdbcTemplateObject.update(query.toString(), pss);
-        if (qr == 0)
+        int qr;
+        qr = jdbcTemplateObject.update(query.toString(), pss);
+        if (qr == 0) {
             return null;
-        return findByUsername(user.getUsername());
+        }
+        User res = findByUsername(user.getUsername());
+        query = new StringBuilder();
+        query.append("insert into user_roles (user_id, role_id) values ");
+        for (Role r : roles) {
+            query.append("(")
+                    .append(res.getId())
+                    .append(",")
+                    .append(r.getId())
+                    .append("),");
+        }
+        query.deleteCharAt(query.length() - 1);
+        query.append(";");
+        qr = jdbcTemplateObject.update(query.toString());
+        return res;
     }
 }
 
