@@ -1,6 +1,5 @@
 package com.moklyak.Game.server;
 
-import java.time.LocalDateTime;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,8 +12,6 @@ public class GameServerApplication {
             
 		SpringApplication.run(GameServerApplication.class, args);
                 
-                
-        
 	}
 
 }

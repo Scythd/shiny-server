@@ -10,9 +10,10 @@
     </parent>
     <groupId>com.moklyak</groupId>
     <artifactId>Game-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Game-server</name>
     <description>Spring Boot Project</description>
+    
     <properties>
         <jquery.version>3.6.0</jquery.version>
         <bootstrap.version>5.1.2</bootstrap.version>

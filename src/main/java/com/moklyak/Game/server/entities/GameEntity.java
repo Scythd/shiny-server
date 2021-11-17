@@ -15,6 +15,7 @@ import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.With;
 
 /**
  *
@@ -25,8 +26,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor()
 public class GameEntity {
-    GameState gameState;
+    
+    @With
     Long id;
+    GameState gameState;
     WinSide winPlayer;
     Date startDate;
     Date endDate;
