@@ -7,6 +7,7 @@ package com.moklyak.Game.server.configurations.security;
 
 import java.util.Collection;
 import lombok.Getter;
+import lombok.With;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 public class JWTUser implements UserDetails {
 
+    @With
     private final Long id;
     private final String username;
     private final String email;

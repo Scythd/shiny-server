@@ -50,7 +50,6 @@ public class AdminController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         UserDto result = UserDto.fromUser(user);
-        result.setToken(token);
 
         ResponseEntity re = new ResponseEntity<>(result, HttpStatus.OK);
         //SecurityContext ctx = SecurityContextHolder.getContext();

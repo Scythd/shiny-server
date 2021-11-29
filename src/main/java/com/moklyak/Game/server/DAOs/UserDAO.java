@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author Пользователь
  */
-@org.springframework.stereotype.Repository
+
 public interface UserDAO {
 
 //    @Query(value = "select u.*, r.id as roles_id, r.name as roles"
