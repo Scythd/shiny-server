@@ -5,10 +5,20 @@
  */
 package com.moklyak.Game.server.models;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  *
  * @author Пользователь
  */
-public class QueueResultDto {
-    
+
+@Data
+@NoArgsConstructor
+public class QueueResultDto {  
+    Integer playerNum;
+    Integer position;
+    String gameType;
+    boolean ready1;
+    boolean ready2;
 }

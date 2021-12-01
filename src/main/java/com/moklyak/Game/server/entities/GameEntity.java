@@ -24,7 +24,7 @@ import lombok.With;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor()
+@NoArgsConstructor
 public class GameEntity {
     
     @With
@@ -37,6 +37,7 @@ public class GameEntity {
     Long player2;
     Integer turn;
     int[][] gameInfo;
+    String gameType;
     
     /**
      * Warning: this function use side effect!!!

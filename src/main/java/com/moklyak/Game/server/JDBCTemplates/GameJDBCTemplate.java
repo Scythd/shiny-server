@@ -32,7 +32,7 @@ import org.springframework.jdbc.core.RowMapper;
 public class GameJDBCTemplate implements GameDAO {
 
     private static ObjectMapper objectMapper1 = new ObjectMapper();
-    
+
     private final JdbcTemplate jdbcTemplateObject;
 
     public GameJDBCTemplate(JdbcTemplate jdbcTemplateObject) {
@@ -61,11 +61,44 @@ public class GameJDBCTemplate implements GameDAO {
     @Override
     public GameEntity saveGame(GameEntity game) {
         GameEntity inBase = null;
-        if (game.getId() != null) {
-            inBase = findById(game.getId());
-        }
-        if (inBase == null) {
-            String query = "insert into Games(player1, player2, win_player, state, turn, startdatetime, enddatetime, game_info) values (?,?,?,?,?,?,?,?)";
+
+        if (game.getId() == null) {
+            String query = "insert into Games(player1, "
+                    + "player2, "
+                    + "win_player, "
+                    + "state, "
+                    + "turn, "
+                    + "startdatetime, "
+                    + "enddatetime, "
+                    + "game_info, "
+                    + "game_type) "
+                    + "values (?,?,?,?,?,?,?,?,?)";
+            jdbcTemplateObject.update(query, (ps) -> {
+                ps.setLong(1, game.getPlayer1());
+                ps.setLong(2, game.getPlayer2());
+                ps.setLong(3, game.getPlayer1());
+                ps.setLong(4, game.getWinPlayer().getSide());
+                ps.setString(5, game.getGameState().getState());
+                ps.setTimestamp(6, new Timestamp(game.getStartDate().toInstant().toEpochMilli()));
+                ps.setTimestamp(7, new Timestamp(game.getEndDate().toInstant().toEpochMilli()));
+                ps.setString(9, game.getGameType());
+                try {
+                    ps.setString(8, objectMapper1.writeValueAsString(game.getGameInfo()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex.getMessage(), ex.getCause());
+                }
+            });
+        } else {
+            String query = "update Games "
+                    + "set player1 = ? , "
+                    + "player2 = ? , "
+                    + "win_player = ? , "
+                    + "state = ? , "
+                    + "turn = ? , "
+                    + "startdatetime = ? , "
+                    + "enddatetime = ? , "
+                    + "game_info = ? "
+                    + "where id = ?";
             jdbcTemplateObject.update(query, (ps) -> {
                 ps.setLong(1, game.getPlayer1());
                 ps.setLong(2, game.getPlayer2());
@@ -75,13 +108,19 @@ public class GameJDBCTemplate implements GameDAO {
                 ps.setTimestamp(6, new Timestamp(game.getStartDate().toInstant().toEpochMilli()));
                 ps.setTimestamp(7, new Timestamp(game.getEndDate().toInstant().toEpochMilli()));
                 try {
-                ps.setString(8, objectMapper1.writeValueAsString(game.getGameInfo()));
-                } catch (Exception ex){
-                    throw new RuntimeException(ex.getMessage(),ex.getCause());
+                    ps.setString(8, objectMapper1.writeValueAsString(game.getGameInfo()));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex.getMessage(), ex.getCause());
                 }
+                ps.setLong(9, game.getId());
             });
-        } else {
-
+        }
+        inBase = findByUserId(game.getPlayer1());
+        if (inBase == null) {
+            inBase = findByUserId(game.getPlayer2());
+        }
+        if (inBase == null) {
+            //error
         }
         return inBase;
     }
@@ -119,6 +158,7 @@ class GameRSExtractor implements ResultSetExtractor<GameEntity> {
             r.setPlayer2(rs.getLong("player2"));
             r.setTurn(rs.getInt("turn"));
             r.setWinPlayer(WinSide.valueOf(rs.getString("win_player")));
+            r.setGameType(rs.getString("game_type"));
         } else {
             return null;
         }
@@ -151,6 +191,7 @@ class GameRowMapper implements RowMapper<GameEntity> {
         r.setPlayer2(rs.getLong("player2"));
         r.setTurn(rs.getInt("turn"));
         r.setWinPlayer(WinSide.valueOf(rs.getString("win_player")));
+        r.setGameType(rs.getString("game_type"));
 
         return r;
     }
