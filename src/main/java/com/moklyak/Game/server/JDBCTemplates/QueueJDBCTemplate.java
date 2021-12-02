@@ -15,11 +15,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Пользователь
  */
+@Repository
 public class QueueJDBCTemplate implements QueueDao {
 
     private final JdbcTemplate jdbcTemplateObject;
@@ -55,7 +58,7 @@ public class QueueJDBCTemplate implements QueueDao {
     public QueueEntity findByUserId(Long userId) {
         String sql = "select user_id as uid, "
                 + " game_type as gt, "
-                + " row_number() over (date_created) as pos "
+                + " row_number() over () as pos "
                 + " from queue"
                 + " where user_id = ?"
                 + " order by date_created asc ";
@@ -75,7 +78,7 @@ public class QueueJDBCTemplate implements QueueDao {
     @Override
     public void leaveQueue(Long userId) {
         String sql = "select leaveQueue( ? );";
-        jdbcTemplateObject.update(sql, ps->ps.setLong(1, userId));
+        jdbcTemplateObject.query(sql, ps->ps.setLong(1, userId), rs->rs.next()?rs.getInt(1):-1);
     }
 
 }

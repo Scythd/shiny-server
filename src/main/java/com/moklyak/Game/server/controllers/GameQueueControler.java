@@ -14,6 +14,7 @@ import com.moklyak.Game.server.configurations.security.JwtTokenProvider;
 import com.moklyak.Game.server.entities.QueueEntity;
 import com.moklyak.Game.server.entities.QueueResultEntity;
 import com.moklyak.Game.server.entities.User;
+import com.moklyak.Game.server.models.EnterQueueDto;
 import com.moklyak.Game.server.models.QueueResultDto;
 import com.moklyak.Game.server.services.JWTUserDetailsService;
 import java.util.ArrayDeque;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,25 +49,26 @@ public class GameQueueControler {
     private final UserDAO userDao;
     private final QueueDao queueDao;
     private final QueueResultDao queueResultDao;
-
+    
     public GameQueueControler(JwtTokenProvider jwtTokenProvider, UserDAO userDao, QueueDao queueDao, QueueResultDao queueResultDao) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDao = userDao;
         this.queueDao = queueDao;
         this.queueResultDao = queueResultDao;
     }
-
-    @PostMapping("/queue/enter")
-    public void enterQueue(@RequestParam("gameType") String gameType, @RequestHeader("Authorization") String token) {
+    
+    @PostMapping("/enter")
+    public ResponseEntity<QueueResultDto> enterQueue(@RequestBody EnterQueueDto eqd, @RequestHeader("Authorization") String token) {
         // resolve asked user
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);
         // crete and add queueentity
-        QueueEntity qe = new QueueEntity(user.getId(), -1, gameType);
+        QueueEntity qe = new QueueEntity(user.getId(), -1, eqd.getGameType());
         queueDao.save(qe);
+        return queueResult(token);
     }
-
-    @GetMapping("/queue/result")
+    
+    @GetMapping("/result")
     public ResponseEntity<QueueResultDto> queueResult(@RequestHeader("Authorization") String token) {
         // resolve asked user
         String username = jwtTokenProvider.getUsername(token);
@@ -102,21 +105,27 @@ public class GameQueueControler {
             qrd = qe.toDto();
             qrd.setPlayerNum(0);
         }
-
+        
         return new ResponseEntity<>(qrd, HttpStatus.OK);
     }
-
-    @GetMapping("/queue/becomeready")
+    
+    @GetMapping("/becomeready")
     public ResponseEntity<QueueResultDto> becomeReady(@RequestHeader("Authorization") String token) {
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);
         queueResultDao.setPlayerReady(user.getId());
         QueueResultEntity qre = queueResultDao.findByUserId(user.getId());
-        QueueResultDto qrd = qre.toDto();
+        QueueResultDto qrd;
+        if (qre != null) {
+            qrd = qre.toDto();
+        } else {
+            qrd = new QueueResultDto();
+            qrd.setQueueState("noPos");
+        }
         return new ResponseEntity<>(qrd, HttpStatus.OK);
     }
-
-    @GetMapping("/queue/leavequeue")
+    
+    @GetMapping("/leavequeue")
     public ResponseEntity<QueueResultDto> leaveQueue(@RequestHeader("Authorization") String token) {
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);

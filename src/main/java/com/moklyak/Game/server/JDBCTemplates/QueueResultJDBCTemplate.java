@@ -12,11 +12,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import com.moklyak.Game.server.DAOs.QueueResultDao;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Пользователь
  */
+@Repository
 public class QueueResultJDBCTemplate implements QueueResultDao {
 
     private final JdbcTemplate jdbcTemplateObject;
@@ -53,12 +56,12 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
 
     @Override
     public boolean setPlayerReady(Long userId) {
-        String sql = "update queueresult set ready1 = true where player1 = ? ;";
+        String sql = "update queueresults set ready1 = true where player1 = ? ;";
         int sqlres = jdbcTemplateObject.update(sql, (ps) -> ps.setLong(1, userId));
-        sql = "update queueresult set ready2 = true where player2 = ? ;";
+        sql = "update queueresults set ready2 = true where player2 = ? ;";
         sqlres += jdbcTemplateObject.update(sql, (ps) -> ps.setLong(1, userId));
         if (sqlres > 1) {
-            sql = "update queueresult set ready1 = false, ready2 = false where player1 = ? or player2 = ? ;";
+            sql = "update queueresults set ready1 = false, ready2 = false where player1 = ? or player2 = ? ;";
             jdbcTemplateObject.update(sql, (ps) -> {
                 ps.setLong(1, userId);
                 ps.setLong(1, userId);
@@ -66,7 +69,7 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
             throw new RuntimeException("Database in wrong state!!!");
         }
         sql = "select resolvePendedQueueResults(?);";
-        jdbcTemplateObject.update(sql, ps->ps.setLong(1, userId));
+        jdbcTemplateObject.query(sql, ps->ps.setLong(1, userId), rs->rs.next()?rs.getInt(1):-1);
         return sqlres == 1;
     }
 

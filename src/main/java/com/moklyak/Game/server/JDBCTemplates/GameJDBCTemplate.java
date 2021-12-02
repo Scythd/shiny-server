@@ -24,11 +24,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Пользователь
  */
+@Repository
 public class GameJDBCTemplate implements GameDAO {
 
     private static ObjectMapper objectMapper1 = new ObjectMapper();

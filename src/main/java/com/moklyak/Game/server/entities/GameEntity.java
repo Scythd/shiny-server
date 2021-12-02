@@ -10,6 +10,7 @@ import com.moklyak.Game.server.models.CheckersGameDto;
 import com.moklyak.Game.server.models.ChessGameDto;
 import com.moklyak.Game.server.models.GameDto;
 import com.moklyak.Game.server.models.GameState;
+import com.moklyak.Game.server.models.QueueResultDto;
 import com.moklyak.Game.server.models.WinSide;
 import java.util.Date;
 import lombok.AllArgsConstructor;
@@ -79,5 +80,22 @@ public class GameEntity {
         res = (ChessGameDto)toCommonDto(res);
         res.setDesk(gameInfo);
         return res;
+    }
+    
+    public QueueResultDto toQueueResultDto(Long userId){
+        QueueResultDto qrd = new QueueResultDto();
+        qrd.setGameType(gameType);
+        qrd.setPosition(-1);
+        qrd.setReady1(true);
+        qrd.setReady2(true);
+        if (userId != null){
+            if (userId == player1){
+                qrd.setPlayerNum(1);
+            } else {
+                qrd.setPlayerNum(2);
+            }
+        }
+        qrd.setQueueState("resolved");
+        return qrd;
     }
 }
