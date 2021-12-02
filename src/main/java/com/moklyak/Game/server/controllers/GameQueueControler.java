@@ -85,6 +85,7 @@ public class GameQueueControler {
                 qe = queueDao.findByUserId(user.getId());
                 if (qe == null) {
                     qrd = new QueueResultDto();
+                    qrd.setQueueState("noPos");
                 } else {
                     qrd = qe.toDto();
                     qrd.setPlayerNum(0);
@@ -112,6 +113,16 @@ public class GameQueueControler {
         queueResultDao.setPlayerReady(user.getId());
         QueueResultEntity qre = queueResultDao.findByUserId(user.getId());
         QueueResultDto qrd = qre.toDto();
+        return new ResponseEntity<>(qrd, HttpStatus.OK);
+    }
+
+    @GetMapping("/queue/leavequeue")
+    public ResponseEntity<QueueResultDto> leaveQueue(@RequestHeader("Authorization") String token) {
+        String username = jwtTokenProvider.getUsername(token);
+        User user = userDao.findByUsername(username);
+        queueDao.leaveQueue(user.getId());
+        QueueResultDto qrd = new QueueResultDto();
+        qrd.setQueueState("noPos");
         return new ResponseEntity<>(qrd, HttpStatus.OK);
     }
 }

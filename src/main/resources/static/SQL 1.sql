@@ -136,3 +136,21 @@ values(1, 11, 'Checkers', true, false, current_timestamp - time '00:00:30');
 select * from queueresults;
 select resolvePendedQueueResults(1);
 select * from queue;
+
+
+create or replace function leaveQueue(uid BIGINT) returns integer
+as $$
+declare 
+    rec record;
+begin
+    delete from queue where user_id = uid;
+    select into rec * from queueResults where player1 = uid or player2 = uid;
+    if (res.player1 = uid) then 
+        insert into queue values (res.player2, res.game_type, res.timestamp_created);
+    end if;
+    if (res.player2 = uid) then 
+        insert into queue values (res.player1, res.game_type, res.timestamp_created);
+    end if;
+    delete from queueREsults where player1 = res.player1 and player2 = res.player2;
+    return 0;
+end $$ language plpgsql;

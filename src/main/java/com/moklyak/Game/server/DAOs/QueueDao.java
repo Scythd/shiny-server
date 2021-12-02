@@ -18,4 +18,6 @@ public interface QueueDao {
     QueueEntity findByUserId(Long userId);
     
     List<QueueEntity> findAll();
+    
+    void leaveQueue(Long userId);
 }

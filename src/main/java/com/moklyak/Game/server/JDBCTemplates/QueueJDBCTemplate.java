@@ -68,8 +68,14 @@ public class QueueJDBCTemplate implements QueueDao {
                 + " game_type as gt, "
                 + " row_number() over (date_created) as pos "
                 + " from queue"
-               + " order by date_created asc ";
+                + " order by date_created asc ";
         return jdbcTemplateObject.query(sql, new QueueRowMapper());
+    }
+
+    @Override
+    public void leaveQueue(Long userId) {
+        String sql = "select leaveQueue( ? );";
+        jdbcTemplateObject.update(sql, ps->ps.setLong(1, userId));
     }
 
 }
