@@ -21,4 +21,5 @@ public class QueueResultDto {
     String gameType;
     boolean ready1;
     boolean ready2;
+    String queueState;
 }

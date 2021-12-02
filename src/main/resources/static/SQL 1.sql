@@ -22,6 +22,8 @@ begin
             if ( temp_user.user_id != NEW.user_id) then
                 insert into queueresults values (temp_user.user_id, NEW.user_id, NEW.game_type);
                 delete from queue where user_id = NEW.user_id or user_id = temp_user.user_id;
+                -- also added here clearing cery old queueresults
+                delete from queueresults where age(current_timestamp, timestamp_created) > (time '00:01:00');
             end if;
         end if;
     end if; 
@@ -68,7 +70,7 @@ for each row
 execute procedure unique_queue_check ();
 
 
-insert into queue values(1, 'Checkers');
+insert into queue values(11, 'Checkers');
 select * from queue;
 select * from queueResults;
 select * from users;
@@ -82,8 +84,10 @@ SELECT con.*
         WHERE nsp.nspname = 'public'
              AND rel.relname = 'queue';
 alter table games alter column startdatetime set default (current_timestamp);
+alter table queueresults add column timestamp_created timestamp not null default current_timestamp;
 
-create function resolvePendedQueueResults(user_id BIGINT) returns integer
+
+create or replace function resolvePendedQueueResults(user_id BIGINT) returns integer
 as $$
 declare
     res record;
@@ -92,15 +96,43 @@ begin
     if (res.ready1 = true and res.ready2 = true) then
         insert into games (state, turn, win_player, player1, player2, game_type)
         values('starting', 0, 0, res.player1, res.player2, res.game_type);
+    end if;
+
+    if (age(current_timestamp, res.timestamp_created) > (time '00:00:30')) then
+        -- ready player back to queue // unredy remove from queue at all
+        -- first delete cause of custom uniwue trigger
         delete from queueresults 
         where player1 = res.player1 and player2 = res.player2;
+        if (res.ready1) then
+
+            insert into queue values (res.player1, res.game_type, res.timestamp_created);
+
+        end if;
+        if (res.ready2) then
+
+            insert into queue values (res.player2, res.game_type, res.timestamp_created);
+
+        end if;
+        
     end if;
     return 0;
 end $$ language plpgsql;
 
-        insert into games (state, turn, win_player, player1, player2, game_type)
-        values('starting', 0, 0, 1, 11, 'Chess');
 
 
+insert into games (state, turn, win_player, player1, player2, game_type)
+values('starting', 0, 0, 1, 11, 'Chess');
 
 select resolvePendedQueueResults(1);
+
+insert into queue values(1, 'Checkers');
+insert into queue values(11, 'Checkers');
+select * from queue;
+select * from queueResults;
+select * from games;
+
+insert into queueresults
+values(1, 11, 'Checkers', true, false, current_timestamp - time '00:00:30');
+select * from queueresults;
+select resolvePendedQueueResults(1);
+select * from queue;

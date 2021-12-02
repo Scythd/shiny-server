@@ -28,6 +28,7 @@ public class QueueEntity {
         res.setReady1(false);
         res.setReady2(false);
         res.setGameType(gameType);
+        res.setQueueState("queueing");
         return res;
     }
 }
