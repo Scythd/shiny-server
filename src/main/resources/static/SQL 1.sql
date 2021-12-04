@@ -54,10 +54,12 @@ as $$
 declare
     queue_eq integer;
     queueres_eq integer;
+    games_eq integer;
 begin
     select into queue_eq count(*) from queue where user_id = NEW.user_id;
     select into queueres_eq count(*) from queueresults where player1 = NEW.user_id or player2 = NEW.user_id;
-    if ((queue_eq + queueres_eq) = 0) then
+    select into games_eq count(*) from games where player1 = NEW.user_id or player2 = NEW.user_id;
+    if ((queue_eq + queueres_eq + games_eq) = 0) then
         return NEW;
     else
         return null;
@@ -103,12 +105,12 @@ begin
         -- first delete cause of custom uniwue trigger
         delete from queueresults 
         where player1 = res.player1 and player2 = res.player2;
-        if (res.ready1) then
+        if (res.ready1 and not res.ready2) then
 
             insert into queue values (res.player1, res.game_type, res.timestamp_created);
 
         end if;
-        if (res.ready2) then
+        if (res.ready2 and not res.ready1) then
 
             insert into queue values (res.player2, res.game_type, res.timestamp_created);
 
