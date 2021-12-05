@@ -147,12 +147,12 @@ declare
 begin
     delete from queue where user_id = uid;
     select into rec * from queueResults where player1 = uid or player2 = uid;
-    if (res.player1 = uid) then 
-        insert into queue values (res.player2, res.game_type, res.timestamp_created);
+    if (rec.player1 = uid) then 
+        insert into queue values (rec.player2, rec.game_type, rec.timestamp_created);
     end if;
-    if (res.player2 = uid) then 
-        insert into queue values (res.player1, res.game_type, res.timestamp_created);
+    if (rec.player2 = uid) then 
+        insert into queue values (rec.player1, rec.game_type, rec.timestamp_created);
     end if;
-    delete from queueREsults where player1 = res.player1 and player2 = res.player2;
+    delete from queueREsults where player1 = rec.player1 and player2 = rec.player2;
     return 0;
 end $$ language plpgsql;
