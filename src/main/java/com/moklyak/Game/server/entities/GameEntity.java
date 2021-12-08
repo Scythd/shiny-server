@@ -34,8 +34,8 @@ public class GameEntity {
     WinSide winPlayer;
     Date startDate;
     Date endDate;
-    Long player1;
-    Long player2;
+    Long playerFirst;
+    Long playerSecond;
     Integer turn;
     int[][] gameInfo;
     String gameType;
@@ -50,8 +50,8 @@ public class GameEntity {
         toSet.setGameState(gameState);
         toSet.setWinPlayer(winPlayer);
         toSet.setId(id);
-        toSet.setPlayer1(player1);
-        toSet.setPlayer2(player2);
+        toSet.setPlayerFirst(playerFirst);
+        toSet.setPlayerSecond(playerSecond);
         return toSet;
     }
     
@@ -86,10 +86,10 @@ public class GameEntity {
         QueueResultDto qrd = new QueueResultDto();
         qrd.setGameType(gameType);
         qrd.setPosition(-1);
-        qrd.setReady1(true);
-        qrd.setReady2(true);
+        qrd.setReadyFirst(true);
+        qrd.setReadySecond(true);
         if (userId != null){
-            if (userId == player1){
+            if (userId == playerFirst){
                 qrd.setPlayerNum(1);
             } else {
                 qrd.setPlayerNum(2);
