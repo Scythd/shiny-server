@@ -17,17 +17,17 @@ import lombok.*;
 @NoArgsConstructor
 public class QueueResultEntity {
 
-    Long player1;
-    Long player2;
+    Long playerFirst;
+    Long playerSecond;
     String gameType;
-    boolean ready1;
-    boolean ready2;
+    boolean readyFirst;
+    boolean readySecond;
     
     public QueueResultDto toDto(){
         QueueResultDto res = new QueueResultDto();
         res.setPosition(-1);
-        res.setReady1(ready1);
-        res.setReady2(ready2);
+        res.setReadyFirst(readyFirst);
+        res.setReadySecond(readySecond);
         res.setGameType(gameType);
         res.setQueueState("waitingReady");
         return res;

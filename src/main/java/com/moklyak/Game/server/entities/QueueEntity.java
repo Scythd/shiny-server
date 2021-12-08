@@ -25,8 +25,8 @@ public class QueueEntity {
     public QueueResultDto toDto(){
         QueueResultDto res = new QueueResultDto();
         res.setPosition(position);
-        res.setReady1(false);
-        res.setReady2(false);
+        res.setReadyFirst(false);
+        res.setReadySecond(false);
         res.setGameType(gameType);
         res.setQueueState("queueing");
         return res;

@@ -30,7 +30,7 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
 
     @Override
     public QueueResultEntity findByUserId(Long id) {
-        String sql = "select * from queueresults where player1 = ? or player2 = ?";
+        String sql = "select * from queueresults where playerFirst = ? or playerSecond = ?";
 
         return jdbcTemplateObject.query(sql, (ps) -> {
             ps.setLong(1, id);
@@ -42,8 +42,8 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
     @Override
     public QueueResultEntity findByUsersIds(Long id1, Long id2) {
         String sql = "select * from queueresults where "
-                + " (player1 = ? and player2 = ?) or"
-                + " (player2 = ? and player1 = ?)";
+                + " (playerFirst = ? and playerSecond = ?) or"
+                + " (playerSecond = ? and playerFirst = ?)";
 
         return jdbcTemplateObject.query(sql, (ps) -> {
             ps.setLong(1, id1);
@@ -55,13 +55,30 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
     }
 
     @Override
+    public QueueResultEntity findInResolved(Long userId) {
+        String sql = "select playerFirst"
+                + ", playerSecond"
+                + ", game_Type"
+                + ", true as readyFirst"
+                + ", true as readySecond "
+                + " from games where "
+                + " (playerFirst = ? or playerSecond = ?)";
+
+        return jdbcTemplateObject.query(sql, (ps) -> {
+            ps.setLong(1, userId);
+            ps.setLong(2, userId);
+        }, new QRRSExtractor());
+
+    }
+
+    @Override
     public boolean setPlayerReady(Long userId) {
-        String sql = "update queueresults set ready1 = true where player1 = ? ;";
+        String sql = "update queueresults set readyFirst = true where playerFirst = ? ;";
         int sqlres = jdbcTemplateObject.update(sql, (ps) -> ps.setLong(1, userId));
-        sql = "update queueresults set ready2 = true where player2 = ? ;";
+        sql = "update queueresults set readySecond = true where playerSecond = ? ;";
         sqlres += jdbcTemplateObject.update(sql, (ps) -> ps.setLong(1, userId));
         if (sqlres > 1) {
-            sql = "update queueresults set ready1 = false, ready2 = false where player1 = ? or player2 = ? ;";
+            sql = "update queueresults set readyFirst = false, readySecond = false where playerFirst = ? or playerSecond = ? ;";
             jdbcTemplateObject.update(sql, (ps) -> {
                 ps.setLong(1, userId);
                 ps.setLong(1, userId);
@@ -69,10 +86,9 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
             throw new RuntimeException("Database in wrong state!!!");
         }
         sql = "select resolvePendedQueueResults(?);";
-        jdbcTemplateObject.query(sql, ps->ps.setLong(1, userId), rs->rs.next()?rs.getInt(1):-1);
+        jdbcTemplateObject.query(sql, ps -> ps.setLong(1, userId), rs -> rs.next() ? rs.getInt(1) : -1);
         return sqlres == 1;
     }
-
 
 }
 
@@ -82,11 +98,11 @@ class QRRSExtractor implements ResultSetExtractor<QueueResultEntity> {
     public QueueResultEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
         if (rs.next()) {
             QueueResultEntity qre = new QueueResultEntity();
-            qre.setPlayer1(rs.getLong("player1"));
-            qre.setPlayer2(rs.getLong("player2"));
+            qre.setPlayerFirst(rs.getLong("playerFirst"));
+            qre.setPlayerSecond(rs.getLong("playerSecond"));
             qre.setGameType(rs.getString("game_type"));
-            qre.setReady1(rs.getBoolean("ready1"));
-            qre.setReady2(rs.getBoolean("ready2"));
+            qre.setReadyFirst(rs.getBoolean("readyFirst"));
+            qre.setReadySecond(rs.getBoolean("readySecond"));
             return qre;
         } else {
             return null;

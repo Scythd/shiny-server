@@ -57,8 +57,8 @@ declare
     games_eq integer;
 begin
     select into queue_eq count(*) from queue where user_id = NEW.user_id;
-    select into queueres_eq count(*) from queueresults where player1 = NEW.user_id or player2 = NEW.user_id;
-    select into games_eq count(*) from games where player1 = NEW.user_id or player2 = NEW.user_id;
+    select into queueres_eq count(*) from queueresults where playerFirst = NEW.user_id or playerSecond = NEW.user_id;
+    select into games_eq count(*) from games where playerFirst = NEW.user_id or playerSecond = NEW.user_id;
     if ((queue_eq + queueres_eq + games_eq) = 0) then
         return NEW;
     else
@@ -94,25 +94,25 @@ as $$
 declare
     res record;
 begin
-    select into res * from queueresults where player1 = user_id or player2 = user_id;
-    if (res.ready1 = true and res.ready2 = true) then
-        insert into games (state, turn, win_player, player1, player2, game_type)
-        values('starting', 0, 0, res.player1, res.player2, res.game_type);
+    select into res * from queueresults where playerFirst = user_id or playerSecond = user_id;
+    if (res.readyFirst = true and res.readySecond = true) then
+        insert into games (state, turn, win_player, playerFirst, playerSecond, game_type)
+        values('starting', 0, 0, res.playerFirst, res.playerSecond, res.game_type);
     end if;
 
     if (age(current_timestamp, res.timestamp_created) > (time '00:00:30')) then
         -- ready player back to queue // unredy remove from queue at all
         -- first delete cause of custom uniwue trigger
         delete from queueresults 
-        where player1 = res.player1 and player2 = res.player2;
-        if (res.ready1 and not res.ready2) then
+        where playerFirst = res.playerFirst and playerSecond = res.playerSecond;
+        if (res.readyFirst and not res.readySecond) then
 
-            insert into queue values (res.player1, res.game_type, res.timestamp_created);
+            insert into queue values (res.playerFirst, res.game_type, res.timestamp_created);
 
         end if;
-        if (res.ready2 and not res.ready1) then
+        if (res.readySecond and not res.readyFirst) then
 
-            insert into queue values (res.player2, res.game_type, res.timestamp_created);
+            insert into queue values (res.playerSecond, res.game_type, res.timestamp_created);
 
         end if;
         
@@ -122,7 +122,7 @@ end $$ language plpgsql;
 
 
 
-insert into games (state, turn, win_player, player1, player2, game_type)
+insert into games (state, turn, win_player, playerFirst, playerSecond, game_type)
 values('starting', 0, 0, 1, 11, 'Chess');
 
 select resolvePendedQueueResults(1);
@@ -146,13 +146,21 @@ declare
     rec record;
 begin
     delete from queue where user_id = uid;
-    select into rec * from queueResults where player1 = uid or player2 = uid;
-    if (rec.player1 = uid) then 
-        insert into queue values (rec.player2, rec.game_type, rec.timestamp_created);
+    select into rec * from queueResults where playerFirst = uid or playerSecond = uid;
+    if (rec.playerFirst = uid) then 
+        insert into queue values (rec.playerSecond, rec.game_type, rec.timestamp_created);
     end if;
-    if (rec.player2 = uid) then 
-        insert into queue values (rec.player1, rec.game_type, rec.timestamp_created);
+    if (rec.playerSecond = uid) then 
+        insert into queue values (rec.playerFirst, rec.game_type, rec.timestamp_created);
     end if;
-    delete from queueREsults where player1 = rec.player1 and player2 = rec.player2;
+    delete from queueREsults where playerFirst = rec.playerFirst and playerSecond = rec.playerSecond;
     return 0;
 end $$ language plpgsql;
+
+
+alter table games rename column player1 to playerFirst;
+alter table games rename column player2 to playerSecond;
+alter table queueresults rename column player1 to playerFirst;
+alter table queueresults rename column player2 to playerSecond;
+alter table queueresults rename column ready1 to readyFirst;
+alter table queueresults rename column ready2 to readySecond;

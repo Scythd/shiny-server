@@ -8,20 +8,12 @@ package com.moklyak.Game.server.controllers;
 import com.moklyak.Game.server.DAOs.QueueDao;
 import com.moklyak.Game.server.DAOs.QueueResultDao;
 import com.moklyak.Game.server.DAOs.UserDAO;
-import com.moklyak.Game.server.JDBCTemplates.QueueJDBCTemplate;
-import com.moklyak.Game.server.JDBCTemplates.UserJDBCTemplate;
 import com.moklyak.Game.server.configurations.security.JwtTokenProvider;
 import com.moklyak.Game.server.entities.QueueEntity;
 import com.moklyak.Game.server.entities.QueueResultEntity;
 import com.moklyak.Game.server.entities.User;
 import com.moklyak.Game.server.models.EnterQueueDto;
-import com.moklyak.Game.server.models.ErrorDto;
 import com.moklyak.Game.server.models.QueueResultDto;
-import com.moklyak.Game.server.services.JWTUserDetailsService;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.function.EntityResponse;
 
 /**
  *
@@ -50,6 +40,7 @@ public class GameQueueControler {
     private final UserDAO userDao;
     private final QueueDao queueDao;
     private final QueueResultDao queueResultDao;
+    
 
     public GameQueueControler(JwtTokenProvider jwtTokenProvider, UserDAO userDao, QueueDao queueDao, QueueResultDao queueResultDao) {
         this.jwtTokenProvider = jwtTokenProvider;
@@ -85,12 +76,15 @@ public class GameQueueControler {
         // go to queueresults and watch here
         // watch queu again (cause of some sort of bad realisation here)
         // if not send back error smth like user not in queue anymore
-
+        
         QueueResultDto qrd;
         QueueResultEntity qre = null;
         QueueEntity qe = queueDao.findByUserId(user.getId());
         if (qe == null) {
             qre = queueResultDao.findByUserId(user.getId());
+            if (qre == null){
+                qre = queueResultDao.findInResolved(user.getId());
+            }
             if (qre == null) {
                 qe = queueDao.findByUserId(user.getId());
                 if (qe == null) {
@@ -102,11 +96,13 @@ public class GameQueueControler {
                 }
             } else {
                 qrd = qre.toDto();
-                if (Objects.equals(user.getId(), qre.getPlayer1())) {
+                if (Objects.equals(user.getId(), qre.getPlayerFirst())) {
                     qrd.setPlayerNum(1);
                 } else {
                     qrd.setPlayerNum(2);
                 }
+                if (qre.isReadyFirst() && qre.isReadySecond())
+                    qrd.setQueueState("resolved");
             }
         } else {
             qrd = qe.toDto();
@@ -116,20 +112,21 @@ public class GameQueueControler {
 
     }
 
+  
     @GetMapping("/becomeready")
     public ResponseEntity<QueueResultDto> becomeReady(@RequestHeader("Authorization") String token) {
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);
         queueResultDao.setPlayerReady(user.getId());
-        QueueResultEntity qre = queueResultDao.findByUserId(user.getId());
-        QueueResultDto qrd;
-        if (qre != null) {
-            qrd = qre.toDto();
-        } else {
-            qrd = new QueueResultDto();
-            qrd.setQueueState("noPos");
-        }
-        return new ResponseEntity<>(qrd, HttpStatus.OK);
+//        QueueResultEntity qre = queueResultDao.findByUserId(user.getId());
+//        QueueResultDto qrd;
+//        if (qre != null) {
+//            qrd = qre.toDto();
+//        } else {
+//            qrd = new QueueResultDto();
+//            qrd.setQueueState("noPos");
+//        }
+        return queueResult(token);
     }
 
     @GetMapping("/leavequeue")

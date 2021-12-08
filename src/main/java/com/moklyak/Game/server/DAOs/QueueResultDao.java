@@ -18,4 +18,5 @@ public interface QueueResultDao {
     
     boolean setPlayerReady(Long userId);
     
+    QueueResultEntity findInResolved(Long userId);
 }

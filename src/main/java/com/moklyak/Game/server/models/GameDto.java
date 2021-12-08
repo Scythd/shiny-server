@@ -24,8 +24,8 @@ public abstract class GameDto {
     WinSide winPlayer;
     Date startDate;
     Date endDate;
-    Long player1;
-    Long player2;
+    Long playerFirst;
+    Long playerSecond;
     Integer turn;
     
     GameEntity toGameEntity(){
@@ -36,8 +36,8 @@ public abstract class GameDto {
         res.setWinPlayer(winPlayer);
         res.setGameState(gameState);
         res.setId(id);
-        res.setPlayer1(player1);
-        res.setPlayer2(player2);
+        res.setPlayerFirst(playerFirst);
+        res.setPlayerSecond(playerSecond);
         return res;
     }
     

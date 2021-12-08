@@ -19,7 +19,7 @@ public class QueueResultDto {
     Integer playerNum;
     Integer position;
     String gameType;
-    boolean ready1;
-    boolean ready2;
+    boolean readyFirst;
+    boolean readySecond;
     String queueState;
 }
