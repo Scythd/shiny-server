@@ -18,16 +18,20 @@ public enum WinSide {
         this.side = side;
     }
 
-    private WinSide(String side) {
+    public static WinSide getBySide(String side) {
         switch (side) {
-            case "first" ->
-                this.side = 1;
-            case "second" ->
-                this.side = 2;
-            case "draw" ->
-                this.side = 0;
-            default ->
-                this.side = -1;
+            case "first" -> {
+                return WinSide.FIRST_PLAYER;
+            }
+            case "second" -> {
+                return WinSide.SECOND_PLAYER;
+            }
+            case "draw" -> {
+                return WinSide.DRAW;
+            }
+            default -> {
+                return WinSide.NA;
+            }
         }
     }
 
@@ -35,6 +39,4 @@ public enum WinSide {
         return side;
     }
 
-    
-    
 }

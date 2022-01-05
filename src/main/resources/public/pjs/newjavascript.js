@@ -29,6 +29,23 @@ class AuthRequests {
     }
 }
 
+class GameBullCowRequests {
+    static async gameInfo() {
+        let response = new FetchWrapper("api/game/bullcow/getInfo", "GET");
+        await response.fetch();
+        return await response.result;
+    }
+    static async postPlayerAns(num){
+        let response = new FetchWrapper("api/game/bullcow/setAnswer", "POST", num);
+        await response.fetch();
+        return await response.result;
+    }
+    static async postPlayerGuess(guess){
+        let response = new FetchWrapper("api/game/bullcow/playerGuess", "POST", guess);
+        await response.fetch();
+        return await response.result;
+    }
+}
 
 class QueueRequests {
 
@@ -101,7 +118,7 @@ class FetchWrapper {
             CoockieManager.setCookie("Authorization", this.response.headers.get("Authorization"), 1 / 48);
 
         }
-
+        //console.log(CoockieManager.getCookie("Authorization"));
     }
 
 }

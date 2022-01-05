@@ -11,16 +11,34 @@ package com.moklyak.Game.server.models;
  */
 public enum GameState {
     STARTING("starting"), RUNNING("running"), STOPPED("stopped"), ENDED("ended");
-    
+
     String state;
 
     private GameState(String state) {
         this.state = state.toLowerCase();
     }
 
+    public static GameState getByState(String state) {
+        switch (state) {
+            case "starting" -> {
+                return GameState.STARTING;
+            }
+            case "running" -> {
+                return GameState.RUNNING;
+            }
+            case "stopped" -> {
+                return GameState.STOPPED;
+            }
+            case "ended" -> {
+                return GameState.ENDED;
+            }
+
+        }
+        throw new RuntimeException("Game state not found" + state);
+    }
+
     public String getState() {
         return state;
     }
-    
-    
+
 }

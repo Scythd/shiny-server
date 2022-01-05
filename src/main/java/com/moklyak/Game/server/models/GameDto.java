@@ -6,6 +6,7 @@
 package com.moklyak.Game.server.models;
 
 import com.moklyak.Game.server.entities.GameEntity;
+import java.sql.Timestamp;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +23,8 @@ public abstract class GameDto {
     GameState gameState;
     Long id;
     WinSide winPlayer;
-    Date startDate;
-    Date endDate;
+    Timestamp startDate;
+    Timestamp endDate;
     Long playerFirst;
     Long playerSecond;
     Integer turn;

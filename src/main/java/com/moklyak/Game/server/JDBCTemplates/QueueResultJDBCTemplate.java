@@ -110,3 +110,5 @@ class QRRSExtractor implements ResultSetExtractor<QueueResultEntity> {
     }
 
 }
+
+

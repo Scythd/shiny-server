@@ -22,7 +22,7 @@ begin
             if ( temp_user.user_id != NEW.user_id) then
                 insert into queueresults values (temp_user.user_id, NEW.user_id, NEW.game_type);
                 delete from queue where user_id = NEW.user_id or user_id = temp_user.user_id;
-                -- also added here clearing cery old queueresults
+                -- also added here clearing very old queueresults
                 delete from queueresults where age(current_timestamp, timestamp_created) > (time '00:01:00');
             end if;
         end if;
@@ -58,8 +58,8 @@ declare
 begin
     select into queue_eq count(*) from queue where user_id = NEW.user_id;
     select into queueres_eq count(*) from queueresults where playerFirst = NEW.user_id or playerSecond = NEW.user_id;
-    select into games_eq count(*) from games where playerFirst = NEW.user_id or playerSecond = NEW.user_id;
-    if ((queue_eq + queueres_eq + games_eq) = 0) then
+    select into games_eq count(*) from games where playerfirst = NEW.user_id or playersecond = NEW.user_id;
+    if (queue_eq = 0 and queueres_eq = 0 and games_eq = 0) then
         return NEW;
     else
         return null;
@@ -93,11 +93,15 @@ create or replace function resolvePendedQueueResults(user_id BIGINT) returns int
 as $$
 declare
     res record;
+    gameCheck record;
 begin
     select into res * from queueresults where playerFirst = user_id or playerSecond = user_id;
     if (res.readyFirst = true and res.readySecond = true) then
-        insert into games (state, turn, win_player, playerFirst, playerSecond, game_type)
-        values('starting', 0, 0, res.playerFirst, res.playerSecond, res.game_type);
+        select into gameCheck * from games where playerFirst = user_id or playerSecond = user_id;
+        if (gameCheck is null) then
+            insert into games (state, turn, win_player, playerFirst, playerSecond, game_type)
+            values('starting', 0, 0, res.playerFirst, res.playerSecond, res.game_type);
+        end if;
     end if;
 
     if (age(current_timestamp, res.timestamp_created) > (time '00:00:30')) then
@@ -112,7 +116,7 @@ begin
         end if;
         if (res.readySecond and not res.readyFirst) then
 
-            insert into queue values (res.playerSecond, res.game_type, res.timestamp_created);
+            insert into queue(user_id, game_type, date_created) values (res.playerSecond, res.game_type, res.timestamp_created);
 
         end if;
         
@@ -164,3 +168,8 @@ alter table queueresults rename column player1 to playerFirst;
 alter table queueresults rename column player2 to playerSecond;
 alter table queueresults rename column ready1 to readyFirst;
 alter table queueresults rename column ready2 to readySecond;
+
+
+
+
+
