@@ -11,7 +11,7 @@
     <groupId>com.moklyak</groupId>
     <artifactId>Game-server</artifactId>
     <version>0.0.2-SNAPSHOT</version>
-    <name>Game-server</name>
+    <name>Shiny-server</name>
     <description>Spring Boot Project</description>
     
     <properties>

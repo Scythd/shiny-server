@@ -53,7 +53,7 @@ public class GameJDBCTemplate implements GameDAO {
 
     @Override
     public GameEntity findByUserId(Long userID) {
-        String query = "select * from Games where playerFirst = ? or playerSecond = ? ;";
+        String query = "select * from Games where where (not state = 'ended') and (playerFirst = ? or playerSecond = ? );";
         GameEntity res = jdbcTemplateObject.query(query, ((ps) -> {
             ps.setLong(1, userID);
             ps.setLong(2, userID);

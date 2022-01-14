@@ -5,6 +5,8 @@
  */
 
 
+/* global Pages */
+
 class AuthRequests {
 
     static async login(username, password) {
@@ -13,7 +15,10 @@ class AuthRequests {
         data.password = password;
         let response = new FetchWrapper("api/auth/login", "POST", data);
         await response.fetch();
-        return await response.result;
+        await response.result;
+        window.localStorage.setItem('UserNick', response.result.username);
+
+        return response.result;
     }
 
 
@@ -24,6 +29,14 @@ class AuthRequests {
         data.email = email;
         data.nickname = nickname;
         let response = new FetchWrapper("api/auth/register", "POST", data);
+        
+        await response.fetch();
+        await response.result;
+        window.localStorage.setItem('UserNick', response.result.username);
+        return response.result;
+    }
+    static async validate() {
+        let response = new FetchWrapper("api/auth/register", "GET");
         await response.fetch();
         return await response.result;
     }
@@ -109,6 +122,11 @@ class FetchWrapper {
                 headers: tempheaders
             });
         }
+        if (this.response.status === 403){
+            window.localStorage.setItem('pageBeforeLogin',  window.localStorage.getItem('lastPage'));
+            Pages.setPageLogin();
+            // add error that authn timed out
+        }
         this.result = await this.response.json();
         if (this.result !== undefined && this.result !== null
                 && this.result.token !== undefined && this.result.token !== null) {
@@ -138,9 +156,9 @@ class CoockieManager {
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0) == ' ')
+            while (c.charAt(0) === ' ')
                 c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) == 0)
+            if (c.indexOf(nameEQ) === 0)
                 return c.substring(nameEQ.length, c.length);
         }
         return null;

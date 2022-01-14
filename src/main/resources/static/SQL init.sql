@@ -63,3 +63,5 @@ create table games (
 --alter table games alter column startDateTime type timestamp;
 alter table games add foreign key (playerFirst) references users(id);
 alter table games add foreign key (playerSecond) references users(id);
+
+SELECT prosrc FROM pg_proc WHERE proname = 'function_name';

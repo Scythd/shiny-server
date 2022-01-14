@@ -1,4 +1,3 @@
-
 drop trigger refresh_queue_results_trigger on queue;
 drop function refresh_queue_results;
 create or replace function public.refresh_queue_results () returns trigger
@@ -51,20 +50,19 @@ drop trigger uniquequeue_trigger_before_insert on queue;
 drop function unique_queue_check;
 create or replace function unique_queue_check () returns trigger
 as $$
-declare
+declare 
     queue_eq integer;
-    queueres_eq integer;
-    games_eq integer;
-begin
-    select into queue_eq count(*) from queue where user_id = NEW.user_id;
-    select into queueres_eq count(*) from queueresults where playerFirst = NEW.user_id or playerSecond = NEW.user_id;
-    select into games_eq count(*) from games where playerfirst = NEW.user_id or playersecond = NEW.user_id;
-    if (queue_eq = 0 and queueres_eq = 0 and games_eq = 0) then
-        return NEW;
-    else
-        return null;
-    end if;
-    
+    queueres_eq integer; 
+    games_eq integer; 
+begin 
+    select into queue_eq count(*) from queue where user_id = NEW.user_id; 
+    select into queueres_eq count(*) from queueresults where playerFirst = NEW.user_id or playerSecond = NEW.user_id; 
+    select into games_eq count(*) from games where (not state = 'ended') and (playerfirst = NEW.user_id or playersecond = NEW.user_id); 
+    if (queue_eq = 0 and queueres_eq = 0 and games_eq = 0) then 
+        return NEW; 
+    else 
+        return null; 
+    end if; 
 end $$ language plpgsql;
 
 create trigger uniquequeue_trigger_before_insert before insert on queue
@@ -173,3 +171,4 @@ alter table queueresults rename column ready2 to readySecond;
 
 
 
+SELECT proname, prosrc FROM pg_proc WHERE proname = 'resolvePendedQueueResults';

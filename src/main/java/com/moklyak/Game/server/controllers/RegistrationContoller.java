@@ -75,7 +75,7 @@ public class RegistrationContoller {
             
             Map<Object, Object> response = new HashMap<>();
             
-            response.put("username", username);
+            response.put("username", user.getNickname());
             response.put("token", token);
             
             return ResponseEntity.ok(response);
