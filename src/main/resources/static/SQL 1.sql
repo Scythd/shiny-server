@@ -95,7 +95,7 @@ declare
 begin
     select into res * from queueresults where playerFirst = user_id or playerSecond = user_id;
     if (res.readyFirst = true and res.readySecond = true) then
-        select into gameCheck * from games where playerFirst = user_id or playerSecond = user_id;
+        select into gameCheck * from games where (not state = 'ended') and (playerFirst = user_id or playerSecond = user_id);
         if (gameCheck is null) then
             insert into games (state, turn, win_player, playerFirst, playerSecond, game_type)
             values('starting', 0, 0, res.playerFirst, res.playerSecond, res.game_type);
@@ -109,7 +109,7 @@ begin
         where playerFirst = res.playerFirst and playerSecond = res.playerSecond;
         if (res.readyFirst and not res.readySecond) then
 
-            insert into queue values (res.playerFirst, res.game_type, res.timestamp_created);
+            insert into queue(user_id, game_type, date_created) values (res.playerFirst, res.game_type, res.timestamp_created);
 
         end if;
         if (res.readySecond and not res.readyFirst) then
@@ -150,10 +150,10 @@ begin
     delete from queue where user_id = uid;
     select into rec * from queueResults where playerFirst = uid or playerSecond = uid;
     if (rec.playerFirst = uid) then 
-        insert into queue values (rec.playerSecond, rec.game_type, rec.timestamp_created);
+        insert into queue(user_id, game_type, date_created) values (rec.playerSecond, rec.game_type, rec.timestamp_created);
     end if;
     if (rec.playerSecond = uid) then 
-        insert into queue values (rec.playerFirst, rec.game_type, rec.timestamp_created);
+        insert into queue(user_id, game_type, date_created) values (rec.playerFirst, rec.game_type, rec.timestamp_created);
     end if;
     delete from queueREsults where playerFirst = rec.playerFirst and playerSecond = rec.playerSecond;
     return 0;
@@ -171,4 +171,4 @@ alter table queueresults rename column ready2 to readySecond;
 
 
 
-SELECT proname, prosrc FROM pg_proc WHERE proname = 'resolvePendedQueueResults';
+SELECT proname, prosrc FROM pg_proc WHERE proname = 'resolvePendedQueueResults(bigint)';

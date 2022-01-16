@@ -31,7 +31,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     
     private static final String[] ADMIN_ENDPOINT = {"/api/admin"};
-    private static final String[] CLIENT_ENDPOINT = {"/", "/webjars/**", "/assets/**","/api/auth/**", "/pjs/**", "/favicon.ico"};
+    private static final String[] CLIENT_ENDPOINT = {"/", "/webjars/**", "/assets/**","/api/auth/**", "/pjs/**", "/css/**" , "/favicon.ico"};
     
     @Autowired
     public SecurityConfiguration(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService){

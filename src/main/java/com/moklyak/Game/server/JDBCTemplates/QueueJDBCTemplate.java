@@ -36,7 +36,7 @@ public class QueueJDBCTemplate implements QueueDao {
         QueueEntity inBase;
         inBase = findByUserId(qe.getUserID());
         if (inBase == null){
-            String sql = "insert into queue(user_id, game_type) values( ? , ? )";
+            String sql = "insert into queue(user_id, game_type) values( ? , (select id from game_types where name = ? ) )";
             jdbcTemplateObject.update(sql, (ps) -> {
                 ps.setLong(1, qe.getUserID());
                 ps.setString(2, qe.getGameType());
@@ -48,7 +48,8 @@ public class QueueJDBCTemplate implements QueueDao {
 //                ps.setString(2, qe.getGameType());
 //                ps.setLong(3, qe.getUserID());
 //            });
-            throw new RuntimeException(qe.getUserID() + " user has alredy entered " + qe.getGameType() + " game queued");
+            //throw new RuntimeException(qe.getUserID() + " user has alredy entered " + qe.getGameType() + " game queued");
+            
         }
         inBase = findByUserId(qe.getUserID());
         return inBase;
@@ -56,10 +57,11 @@ public class QueueJDBCTemplate implements QueueDao {
 
     @Override
     public QueueEntity findByUserId(Long userId) {
-        String sql = "select user_id as uid, "
-                + " game_type as gt, "
+        String sql = "select q.user_id as uid, "
+                + " gt.name as gt, "
                 + " row_number() over () as pos "
-                + " from queue"
+                + " from queue q"
+                + " join game_types gt on gt.id = q.game_type"
                 + " where user_id = ?"
                 + " order by date_created asc ";
         return jdbcTemplateObject.query(sql, ps -> ps.setLong(1, userId), new QueueResultExtractor());
@@ -67,10 +69,11 @@ public class QueueJDBCTemplate implements QueueDao {
 
     @Override
     public List<QueueEntity> findAll() {
-       String sql = "select user_id as uid, "
-                + " game_type as gt, "
+       String sql = "select q.user_id as uid, "
+                + " gt.name as gt, "
                 + " row_number() over (date_created) as pos "
-                + " from queue"
+                + " from queue q"
+                + " join game_types gt on gt.id = q.game_type"
                 + " order by date_created asc ";
         return jdbcTemplateObject.query(sql, new QueueRowMapper());
     }

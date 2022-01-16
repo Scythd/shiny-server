@@ -74,8 +74,7 @@ public class AuthController {
     @GetMapping(value = "/validate")
     public ResponseEntity validateAuth() {
         boolean res = (SecurityContextHolder.getContext().getAuthentication() != null
-                && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
-                && !(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken));
+                && SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
         return ResponseEntity.ok(res);
     }
 

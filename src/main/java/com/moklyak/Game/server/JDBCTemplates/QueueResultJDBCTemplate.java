@@ -30,7 +30,15 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
 
     @Override
     public QueueResultEntity findByUserId(Long id) {
-        String sql = "select * from queueresults where playerFirst = ? or playerSecond = ?";
+        String sql = "select g.playerFirst"
+                + ", g.playerSecond"
+                + ", gt.name as game_Type"
+                + ", g.readyFirst as readyFirst"
+                + ", g.readySecond as readySecond "
+                + "  from queueresults g "
+                + " join game_types gt on gt.id = g.game_type"
+                + " where"
+                + " playerFirst = ? or playerSecond = ?";
 
         return jdbcTemplateObject.query(sql, (ps) -> {
             ps.setLong(1, id);
@@ -41,7 +49,14 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
 
     @Override
     public QueueResultEntity findByUsersIds(Long id1, Long id2) {
-        String sql = "select * from queueresults where "
+        String sql = "select g.playerFirst"
+                + ", g.playerSecond"
+                + ", gt.name as game_Type"
+                + ", g.readyFirst as readyFirst"
+                + ", g.readySecond as readySecond "
+                + "  from queueresults g "
+                + " join game_types gt on gt.id = g.game_type"
+                + " where"
                 + " (playerFirst = ? and playerSecond = ?) or"
                 + " (playerSecond = ? and playerFirst = ?)";
 
@@ -56,12 +71,14 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
 
     @Override
     public QueueResultEntity findInResolved(Long userId) {
-        String sql = "select playerFirst"
-                + ", playerSecond"
-                + ", game_Type"
+        String sql = "select g.playerFirst"
+                + ", g.playerSecond"
+                + ", gt.name as game_Type"
                 + ", true as readyFirst"
                 + ", true as readySecond "
-                + " from games where "
+                + " from games g"
+                + " join game_types gt on gt.id = g.game_type"
+                + " where "
                 + " (playerFirst = ? or playerSecond = ?)";
 
         return jdbcTemplateObject.query(sql, (ps) -> {
@@ -110,5 +127,3 @@ class QRRSExtractor implements ResultSetExtractor<QueueResultEntity> {
     }
 
 }
-
-

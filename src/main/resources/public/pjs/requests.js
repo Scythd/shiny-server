@@ -21,7 +21,6 @@ class AuthRequests {
         return response.result;
     }
 
-
     static async register(username, password, email, nickname) {
         let data = {};
         data.username = username;
@@ -29,14 +28,14 @@ class AuthRequests {
         data.email = email;
         data.nickname = nickname;
         let response = new FetchWrapper("api/auth/register", "POST", data);
-        
+
         await response.fetch();
         await response.result;
         window.localStorage.setItem('UserNick', response.result.username);
         return response.result;
     }
     static async validate() {
-        let response = new FetchWrapper("api/auth/register", "GET");
+        let response = new FetchWrapper("api/auth/validate", "GET");
         await response.fetch();
         return await response.result;
     }
@@ -48,12 +47,12 @@ class GameBullCowRequests {
         await response.fetch();
         return await response.result;
     }
-    static async postPlayerAns(num){
-        let response = new FetchWrapper("api/game/bullcow/setAnswer", "POST", num);
+    static async postPlayerAns(ans) {
+        let response = new FetchWrapper("api/game/bullcow/setAnswer", "POST", ans);
         await response.fetch();
         return await response.result;
     }
-    static async postPlayerGuess(guess){
+    static async postPlayerGuess(guess) {
         let response = new FetchWrapper("api/game/bullcow/playerGuess", "POST", guess);
         await response.fetch();
         return await response.result;
@@ -104,6 +103,11 @@ class FetchWrapper {
         let tempheaders = this.headers;
         let auth = CoockieManager.getCookie("Authorization");
         if (auth !== null) {
+            let i = 0;
+            while (i < 10 && !auth.startsWith('Bearer_')){
+                 auth = CoockieManager.getCookie("Authorization");
+                 i++;
+            }
             tempheaders.Authorization = CoockieManager.getCookie("Authorization") + "";
         }
         tempheaders['Content-Type'] = 'application/json';
@@ -114,7 +118,7 @@ class FetchWrapper {
             this.response = await fetch(this.url, {
                 headers: tempheaders
             });
-            
+
         } else {
             this.response = await fetch(this.url, {
                 method: this.method,
@@ -122,18 +126,22 @@ class FetchWrapper {
                 headers: tempheaders
             });
         }
-        if (this.response.status === 403){
-            window.localStorage.setItem('pageBeforeLogin',  window.localStorage.getItem('lastPage'));
-            Pages.setPageLogin();
-            // add error that authn timed out
+        if (this.response.status === 403) {
+
+            if (!AuthRequests.validate()) {
+                window.localStorage.setItem('pageBeforeLogin', window.localStorage.getItem('lastPage'));
+                Pages.setPageLogin();
+                // add error that authn timed out
+            }
         }
         this.result = await this.response.json();
+
         if (this.result !== undefined && this.result !== null
                 && this.result.token !== undefined && this.result.token !== null) {
-            CoockieManager.setCookie("Authorization", "Bearer_" + this.result.token, 1 / 48);
+            CoockieManager.setCookie("Authorization", "Bearer_" + this.result.token);
 
         } else {
-            CoockieManager.setCookie("Authorization", this.response.headers.get("Authorization"), 1 / 48);
+            CoockieManager.setCookie("Authorization", this.response.headers.get("Authorization"));
 
         }
         //console.log(CoockieManager.getCookie("Authorization"));

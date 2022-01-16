@@ -14,4 +14,6 @@ import lombok.Data;
 @Data
 public class EnterQueueDto {
     String gameType;
+    
+    
 }

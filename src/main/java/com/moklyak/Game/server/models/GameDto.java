@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 public abstract class GameDto {
     GameState gameState;
     Long id;
+    int playerNum;
     WinSide winPlayer;
     Timestamp startDate;
     Timestamp endDate;

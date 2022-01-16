@@ -51,18 +51,22 @@ public class BullCowController {
 
         GameEntity ge = gameDao.findByUserId(user.getId());
         BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
-
+        if (Objects.equals(user.getId(), cgd.getPlayerFirst())) {
+            cgd.setPlayerNum(1);
+        } else {
+            cgd.setPlayerNum(2);
+        }
         return new ResponseEntity<>(cgd, HttpStatus.OK);
     }
 
     @PostMapping("/setAnswer")
-    public ResponseEntity<BullCowGameDto> setAnswer(@RequestHeader("Authorization") String token, @RequestBody int ans) {
+    public ResponseEntity<BullCowGameDto> setAnswer(@RequestHeader("Authorization") String token, @RequestBody String answer) {
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
 
-        String answer = String.valueOf(ans);
+        int ans = Integer.valueOf(answer);
         if (answer.length() != 4 || answer.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
             return new ResponseEntity<>(cgd, HttpStatus.NOT_ACCEPTABLE);
@@ -92,18 +96,21 @@ public class BullCowController {
         ge.setGameInfo(info);
         ge = gameDao.saveGame(ge);
         BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
-
+        if (Objects.equals(user.getId(), cgd.getPlayerFirst())) {
+            cgd.setPlayerNum(1);
+        } else {
+            cgd.setPlayerNum(2);
+        }
         return new ResponseEntity<>(cgd, HttpStatus.OK);
     }
 
     @PostMapping("/playerGuess")
-    public ResponseEntity<BullCowGameDto> playerGuess(@RequestHeader("Authorization") String token, @RequestBody int playerGuess) {
+    public ResponseEntity<BullCowGameDto> playerGuess(@RequestHeader("Authorization") String token, @RequestBody String guess) {
         String username = jwtTokenProvider.getUsername(token);
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
-        String guess = String.valueOf(playerGuess);
-
+        int playerGuess = Integer.valueOf(guess);
         // validate guess : distinct numbers in guess and number count is 4
         if (guess.length() != 4 || guess.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
@@ -144,7 +151,7 @@ public class BullCowController {
         // count bulls ans cows
         int bulls = 0, cows = 0;
         for (int i = 0; i < 4; i++) {
-            guessCycle:
+            
             for (int j = 0; j < 4; j++) {
                 if (ansNumbers[i] == guessNumbers[j]) {
                     if (i == j) {
@@ -152,7 +159,7 @@ public class BullCowController {
                     } else {
                         cows++;
                     }
-                    break guessCycle;
+                    break;
                 }
             }
         }
@@ -169,23 +176,26 @@ public class BullCowController {
         ge.setGameInfo(info);
         ge.setTurn(ge.getTurn() + 1);
         // resolve win
-        if (playerNum == 2 && info[2][info[2].length - 1] == 4){
-            ge.setWinPlayer(WinSide.FIRST_PLAYER);
-            ge.setGameState(GameState.ENDED);
-        }
-        if (bulls == 4) {
-            if (playerNum == 2) {
+
+        if (playerNum == 2) {
+            if (bulls == 4) {
                 if (info[2][info[2].length - 1] != 4) {
                     ge.setWinPlayer(WinSide.SECOND_PLAYER);
                 } else {
                     ge.setWinPlayer(WinSide.DRAW);
                 }
                 ge.setGameState(GameState.ENDED);
-            } 
+            }
+            if (info[2][info[2].length - 1] == 4) {
+                ge.setWinPlayer(WinSide.FIRST_PLAYER);
+                ge.setGameState(GameState.ENDED);
+            }
         }
+
         // update in db
         ge = gameDao.saveGame(ge);
         BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
+        cgd.setPlayerNum(playerNum);
         return new ResponseEntity<>(cgd, HttpStatus.OK);
     }
 }

@@ -56,12 +56,7 @@ public class GameQueueControler {
         User user = userDao.findByUsername(username);
         // crete and add queueentity
         QueueEntity qe = new QueueEntity(user.getId(), -1, eqd.getGameType());
-        try {
-        queueDao.save(qe);
-        } catch (RuntimeException ex){
-            if (!ex.getMessage().equals("1 user has alredy entered Chess game queued"))
-                throw ex;
-        }
+        queueDao.save(qe); 
         return queueResult(token);
     }
 
@@ -101,8 +96,9 @@ public class GameQueueControler {
                 } else {
                     qrd.setPlayerNum(2);
                 }
-                if (qre.isReadyFirst() && qre.isReadySecond())
+                if (qre.isReadyFirst() && qre.isReadySecond()){
                     qrd.setQueueState("resolved");
+                }
             }
         } else {
             qrd = qe.toDto();

@@ -4,13 +4,47 @@
  */
 
 
-/* global uname, pwd, AuthRequests, Pages */
+/* global uname, pwd, AuthRequests, Pages, gameType, QueueRequests, Cycle */
 
-class ClickEvents{
-    static loginBtn = async function (){
+class ClickEvents {
+    static loginBtn = async function () {
         let username = uname.value;
         let password = pwd.value;
         await AuthRequests.login(username, password);
-        Pages.setPage( window.localStorage.getItem('pageBeforeLogin'));
+        let pageBefore = window.localStorage.getItem('pageBeforeLogin');
+        if (pageBefore === 'login'){
+            pageBefore = 'main';
+        }
+        Pages.setPage(pageBefore);
+    }
+
+    static enterQueueBtn = async function () {
+        let alreadyQueue = await QueueRequests.queueResult();
+
+        let type = gameType.value;
+        if (type === 'Null') {
+            alert('Выберите тип игры.');
+            return;
+        }
+        if (alreadyQueue.queueState === "noPos") {
+            alreadyQueue = await QueueRequests.enterQueue(type);
+        }
+        Pages.setPageQueue();
+    }
+
+    static becomeReadyBtn = async function () {
+        await QueueRequests.becomeReady();
+    }
+
+    static leaveQueueBtn = async function () {
+        Cycle.actions = new Array();
+        Cycle.stop();
+        QueueRequests.leaveQueue();
+        Cycle.init();
+        Pages.setPageMain();
+    }
+
+    static lastGameBtn = async function () {
+        Pages.setPageGame();
     }
 }
