@@ -44,7 +44,7 @@ public class GameJDBCTemplate implements GameDAO {
 
     @Override
     public GameEntity findById(Long id) {
-        String query = "select * from Games where id = ? ;";
+        String query = "select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type from Games where id = ? ;";
         GameEntity res = jdbcTemplateObject.query(query, ((ps) -> {
             ps.setLong(1, id);
         }), new GameRSExtractor());
@@ -53,7 +53,7 @@ public class GameJDBCTemplate implements GameDAO {
 
     @Override
     public GameEntity findByUserId(Long userID) {
-        String query = "select * from Games where (not state = 'ended') and (playerFirst = ? or playerSecond = ? );";
+        String query = "select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type where (not state = 'ended') and (playerFirst = ? or playerSecond = ? );";
         GameEntity res = jdbcTemplateObject.query(query, ((ps) -> {
             ps.setLong(1, userID);
             ps.setLong(2, userID);
@@ -75,7 +75,7 @@ public class GameJDBCTemplate implements GameDAO {
                     + "enddatetime, "
                     + "game_info, "
                     + "game_type) "
-                    + "values (?,?,?,?,?,?,?,?,?)";
+                    + "values (?,?,?,?,?,?,?,?,(select id from game_types where name = ? ))";
             jdbcTemplateObject.update(query, (ps) -> {
                 ps.setLong(1, game.getPlayerFirst());
                 ps.setLong(2, game.getPlayerSecond());
@@ -138,7 +138,7 @@ public class GameJDBCTemplate implements GameDAO {
 
     @Override
     public List<GameEntity> findAll() {
-        String query = "select * from Games;";
+        String query = "select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type;";
         List<GameEntity> res = jdbcTemplateObject.query(query, new GameRowMapper());
         return res;
     }
@@ -275,7 +275,7 @@ public class GameJDBCTemplate implements GameDAO {
                 r.setPlayerSecond(rs.getLong("playerSecond"));
                 r.setTurn(rs.getInt("turn"));
                 r.setWinPlayer(WinSide.getBySide(rs.getString("win_player")));
-                r.setGameType(rs.getString("game_type"));
+                r.setGameType(rs.getString("gt"));
 
             } else {
                 return null;
@@ -312,7 +312,7 @@ public class GameJDBCTemplate implements GameDAO {
             r.setPlayerSecond(rs.getLong("playerSecond"));
             r.setTurn(rs.getInt("turn"));
             r.setWinPlayer(WinSide.getBySide(rs.getString("win_player")));
-            r.setGameType(rs.getString("game_type"));
+            r.setGameType(rs.getString("gt"));
 
             return initialize(r);
         }
