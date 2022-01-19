@@ -65,7 +65,7 @@ public class BullCowController {
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
-
+        answer = answer.substring(1, 5);
         int ans = Integer.valueOf(answer);
         if (answer.length() != 4 || answer.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
@@ -110,6 +110,7 @@ public class BullCowController {
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
+        guess = guess.substring(1, 5);
         int playerGuess = Integer.valueOf(guess);
         // validate guess : distinct numbers in guess and number count is 4
         if (guess.length() != 4 || guess.chars().distinct().count() != 4) {
