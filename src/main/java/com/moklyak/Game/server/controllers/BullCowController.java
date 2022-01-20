@@ -15,7 +15,6 @@ import com.moklyak.Game.server.models.GameState;
 import com.moklyak.Game.server.models.WinSide;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Stream;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -110,6 +108,7 @@ public class BullCowController {
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
+
         guess = guess.substring(1, 5);
         int playerGuess = Integer.valueOf(guess);
         // validate guess : distinct numbers in guess and number count is 4
@@ -144,57 +143,77 @@ public class BullCowController {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
 
-        int[][] info = ge.getGameInfo();
-        String answer = String.valueOf(info[0][iAnswer]);
-        byte[] ansNumbers = answer.getBytes();
-        byte[] guessNumbers = guess.getBytes();
+        if (GameState.ENDED.equals(ge.getGameState())) {
 
-        // count bulls ans cows
-        int bulls = 0, cows = 0;
-        for (int i = 0; i < 4; i++) {
-            
-            for (int j = 0; j < 4; j++) {
-                if (ansNumbers[i] == guessNumbers[j]) {
-                    if (i == j) {
-                        bulls++;
-                    } else {
-                        cows++;
+        } else {
+            int[][] info = ge.getGameInfo();
+            String answer = String.valueOf(info[0][iAnswer]);
+            if (answer.length() == 3) {
+                answer = '0' + answer;
+            }
+            byte[] ansNumbers = answer.getBytes();
+            byte[] guessNumbers = guess.getBytes();
+
+            // count bulls ans cows
+            int bulls = 0, cows = 0;
+            for (int i = 0; i < 4; i++) {
+
+                for (int j = 0; j < 4; j++) {
+                    if (ansNumbers[i] == guessNumbers[j]) {
+                        if (i == j) {
+                            bulls++;
+                        } else {
+                            cows++;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
-        }
-        // add to info //
-        // resize hist
-        info[iGuessHist] = Arrays.copyOf(info[iGuessHist], info[iGuessHist].length + 1);
-        info[iGuessHist + 1] = Arrays.copyOf(info[iGuessHist + 1], info[iGuessHist + 1].length + 1);
-        info[iGuessHist + 2] = Arrays.copyOf(info[iGuessHist + 2], info[iGuessHist + 2].length + 1);
-        // write to hist
-        info[iGuessHist][info[iGuessHist].length - 1] = playerGuess;
-        info[iGuessHist + 1][info[iGuessHist + 1].length - 1] = bulls;
-        info[iGuessHist + 2][info[iGuessHist + 2].length - 1] = cows;
-        // write to entity
-        ge.setGameInfo(info);
-        ge.setTurn(ge.getTurn() + 1);
-        // resolve win
-
-        if (playerNum == 2) {
-            if (bulls == 4) {
-                if (info[2][info[2].length - 1] != 4) {
-                    ge.setWinPlayer(WinSide.SECOND_PLAYER);
+            // add to info //
+            // resize hist
+            info[iGuessHist] = Arrays.copyOf(info[iGuessHist], info[iGuessHist].length + 1);
+            info[iGuessHist + 1] = Arrays.copyOf(info[iGuessHist + 1], info[iGuessHist + 1].length + 1);
+            info[iGuessHist + 2] = Arrays.copyOf(info[iGuessHist + 2], info[iGuessHist + 2].length + 1);
+            // write to hist
+            info[iGuessHist][info[iGuessHist].length - 1] = playerGuess;
+            info[iGuessHist + 1][info[iGuessHist + 1].length - 1] = bulls;
+            info[iGuessHist + 2][info[iGuessHist + 2].length - 1] = cows;
+            // write to entity
+            ge.setGameInfo(info);
+            ge.setTurn(ge.getTurn() + 1);
+            // resolve win
+            // so all win combinations defining from second player turn
+            // this is cause of bull cow game is gicing last chanse to second player to win 
+            // cause of first player make his first turn earlier
+            // so we start from checking if player is second p
+            if (playerNum == 2) {
+                // when check if second player in win condition (bulls == 4)
+                if (bulls == 4) {
+                    // info[2] is bulls hist of first player
+                    // so first p isn't in win condition
+                    if (info[2][info[2].length - 1] != 4) {
+                        ge.setWinPlayer(WinSide.SECOND_PLAYER);
+                    } 
+                    // so first p is in win condition too
+                    else {
+                        ge.setWinPlayer(WinSide.DRAW);
+                    }
+                    ge.setGameState(GameState.ENDED);
+                // second player is not in win condition
                 } else {
-                    ge.setWinPlayer(WinSide.DRAW);
+                    // first p is in win condition
+                    if (info[2][info[2].length - 1] == 4) {
+                        ge.setWinPlayer(WinSide.FIRST_PLAYER);
+                        ge.setGameState(GameState.ENDED);
+                    }
+                    // else both isn't in win conditions so 
+                    // game is going on
                 }
-                ge.setGameState(GameState.ENDED);
             }
-            if (info[2][info[2].length - 1] == 4) {
-                ge.setWinPlayer(WinSide.FIRST_PLAYER);
-                ge.setGameState(GameState.ENDED);
-            }
-        }
 
-        // update in db
-        ge = gameDao.saveGame(ge);
+            // update in db
+            ge = gameDao.saveGame(ge);
+        }
         BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
         cgd.setPlayerNum(playerNum);
         return new ResponseEntity<>(cgd, HttpStatus.OK);

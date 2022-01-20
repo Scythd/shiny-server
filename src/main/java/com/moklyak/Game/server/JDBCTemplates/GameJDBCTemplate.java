@@ -53,10 +53,16 @@ public class GameJDBCTemplate implements GameDAO {
 
     @Override
     public GameEntity findByUserId(Long userID) {
-        String query = "select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type where (not state = 'ended') and (playerFirst = ? or playerSecond = ? );";
+        String query = 
+                       "(select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type where (not state = 'ended') and (playerFirst = ? or playerSecond = ? )\n" +
+                       "union all \n" +
+                       "select g.*, gt.name as gt from Games g join game_types gt on gt.id = g.game_type where (state = 'ended') and (playerFirst = ? or playerSecond = ? ) \n" +
+                       "order by startdatetime desc fetch first row only) ";
         GameEntity res = jdbcTemplateObject.query(query, ((ps) -> {
             ps.setLong(1, userID);
             ps.setLong(2, userID);
+            ps.setLong(3, userID);
+            ps.setLong(4, userID);
         }), new GameRSExtractor());
         return res;
     }
@@ -230,13 +236,13 @@ public class GameJDBCTemplate implements GameDAO {
             case ("BullCow") -> {
                 // init arrs?
                 //
-                // first arr ans 1 2
-                // guess hist 1
-                // bulls hist 1
-                // cows hist 1
-                // guess hist 2
-                // bulls hist 2
-                // cows hist 2
+                // 0 first arr ans 1 2
+                // 1 guess hist 1
+                // 2 bulls hist 1
+                // 3 cows hist 1
+                // 4 guess hist 2
+                // 5 bulls hist 2
+                // 6 cows hist 2
                 
                 int[][] info = new int[7][0];
                 info[0] = new int[]{-1, -1};
@@ -274,7 +280,7 @@ public class GameJDBCTemplate implements GameDAO {
                 r.setPlayerFirst(rs.getLong("playerFirst"));
                 r.setPlayerSecond(rs.getLong("playerSecond"));
                 r.setTurn(rs.getInt("turn"));
-                r.setWinPlayer(WinSide.getBySide(rs.getString("win_player")));
+                r.setWinPlayer(WinSide.getBySide(rs.getInt("win_player")));
                 r.setGameType(rs.getString("gt"));
 
             } else {
@@ -311,7 +317,7 @@ public class GameJDBCTemplate implements GameDAO {
             r.setPlayerFirst(rs.getLong("playerFirst"));
             r.setPlayerSecond(rs.getLong("playerSecond"));
             r.setTurn(rs.getInt("turn"));
-            r.setWinPlayer(WinSide.getBySide(rs.getString("win_player")));
+            r.setWinPlayer(WinSide.getBySide(rs.getInt("win_player")));
             r.setGameType(rs.getString("gt"));
 
             return initialize(r);

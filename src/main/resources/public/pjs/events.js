@@ -4,7 +4,7 @@
  */
 
 
-/* global uname, pwd, AuthRequests, Pages, gameType, QueueRequests, Cycle */
+/* global uname, pwd, AuthRequests, Pages, gameType, QueueRequests, Cycle, gameInput, GameBullCowRequests */
 
 class ClickEvents {
     static loginBtn = async function () {
@@ -46,5 +46,19 @@ class ClickEvents {
 
     static lastGameBtn = async function () {
         Pages.setPageGame();
+    }
+    
+    static postAnsGameBtn = async function () {
+        let input = gameInput.value;
+        await GameBullCowRequests.postPlayerAns(input);
+    }
+    
+    static postGuessGameBtn = async function () {
+        let input = gameInput.value;
+        await GameBullCowRequests.postPlayerGuess(input);
+    }
+    
+    static toMainBtn = async function () {
+        Pages.setPageMain();
     }
 }

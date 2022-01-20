@@ -12,7 +12,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import com.moklyak.Game.server.DAOs.QueueResultDao;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -79,6 +78,7 @@ public class QueueResultJDBCTemplate implements QueueResultDao {
                 + " from games g"
                 + " join game_types gt on gt.id = g.game_type"
                 + " where "
+                + " (not g.state = 'ended') and "
                 + " (playerFirst = ? or playerSecond = ?)";
 
         return jdbcTemplateObject.query(sql, (ps) -> {

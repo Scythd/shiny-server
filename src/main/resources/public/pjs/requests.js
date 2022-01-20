@@ -90,6 +90,8 @@ class QueueRequests {
 
 class FetchWrapper {
 
+    static mutex = 0;
+
     constructor(url, method, body, headers = {
     'Content-Type': 'application/json'
     }) {
@@ -101,6 +103,11 @@ class FetchWrapper {
 
     async fetch() {
         let tempheaders = this.headers;
+        while (FetchWrapper.mutex !== 0){
+            await sleep(100);
+        }
+        FetchWrapper.mutex = 1;
+        
         let auth = CoockieManager.getCookie("Authorization");
         if (auth !== null) {
             let i = 0;
@@ -144,6 +151,7 @@ class FetchWrapper {
             CoockieManager.setCookie("Authorization", this.response.headers.get("Authorization"));
 
         }
+        FetchWrapper.mutex = 0;
         //console.log(CoockieManager.getCookie("Authorization"));
     }
 

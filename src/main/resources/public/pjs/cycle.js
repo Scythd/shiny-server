@@ -4,31 +4,38 @@
  */
 
 
-class Cycle{
-    
+class Cycle {
+
     static cycleId;
-    
+
     static actions = new Array();
-    
-    
-    static run () {
-        Cycle.actions.forEach((x)=>{x();});
-        
+
+    static async run() {
+
+        for (let x of Cycle.actions) {
+            try {
+                await x();
+            } catch (ex){
+                console.log(ex);
+            }
+        }
+
+        Cycle.cycleId = window.setTimeout(Cycle.run, 1000);
     }
-    
+
     static init() {
-        if (Cycle.cycleId !== undefined){
-            window.clearInterval(Cycle.cycleId);
+        if (Cycle.cycleId !== undefined) {
+            window.clearTimeout(Cycle.cycleId);
         }
-        Cycle.cycleId = window.setInterval(Cycle.run, 2000);
+        Cycle.cycleId = window.setTimeout(Cycle.run, 1000);
     }
-    
-    static stop(){
-        if (Cycle.cycleId !== undefined){
-            window.clearInterval(Cycle.cycleId);
+
+    static stop() {
+        if (Cycle.cycleId !== undefined) {
+            window.clearTimeout(Cycle.cycleId);
         }
     }
-    
+
 }
 
 Cycle.init();
