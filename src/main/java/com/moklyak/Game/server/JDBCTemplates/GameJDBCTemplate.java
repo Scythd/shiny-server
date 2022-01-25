@@ -256,6 +256,12 @@ public class GameJDBCTemplate implements GameDAO {
 
     }
 
+    @Override
+    public void eraseQueue(Long uid){
+        String query = "select crutchQueueResultsCleaner(" + uid + ");";
+        jdbcTemplateObject.execute(query);
+    }
+    
     class GameRSExtractor implements ResultSetExtractor<GameEntity> {
 
         static ObjectMapper objectMapper = new ObjectMapper();

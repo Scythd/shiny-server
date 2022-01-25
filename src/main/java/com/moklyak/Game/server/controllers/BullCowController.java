@@ -90,6 +90,7 @@ public class BullCowController {
         if (info[0][0] != -1 && info[0][1] != -1) {
             ge.setTurn(1);
             ge.setGameState(GameState.RUNNING);
+            gameDao.eraseQueue(user.getId()); 
         }
         ge.setGameInfo(info);
         ge = gameDao.saveGame(ge);

@@ -134,10 +134,14 @@ class FetchWrapper {
             });
         }
         if (this.response.status === 403) {
-
-            if (!AuthRequests.validate()) {
+            let valid = await fetch("api/auth/validate", {
+                method: 'GET',
+                headers: tempheaders
+            });
+            if (valid.status === 403) {
                 window.localStorage.setItem('pageBeforeLogin', window.localStorage.getItem('lastPage'));
                 Pages.setPageLogin();
+                
                 // add error that authn timed out
             }
         }

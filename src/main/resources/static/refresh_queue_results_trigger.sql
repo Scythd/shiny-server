@@ -31,7 +31,7 @@ begin
                 insert into queueresults values (temp_user.user_id, NEW.user_id, NEW.game_type);
                 delete from queue where user_id = NEW.user_id or user_id = temp_user.user_id;
                 -- also added here clearing very old queueresults
-                delete from queueresults where age(current_timestamp, timestamp_created) > (time '00:01:00');
+                delete from queueresults where age(current_timestamp, timestamp_created) > (time '00:00:35');
             end if;
         end if;
     end if; 
@@ -47,3 +47,4 @@ create trigger refresh_queue_results_trigger after insert
 on queue
 for each row
 execute procedure refresh_queue_results ();
+

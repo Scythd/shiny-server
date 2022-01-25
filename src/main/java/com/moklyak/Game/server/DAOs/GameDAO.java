@@ -21,4 +21,6 @@ public interface GameDAO {
     public GameEntity saveGame(GameEntity game);
     
     public List<GameEntity> findAll();
+    
+    public void eraseQueue(Long uid);
 }
