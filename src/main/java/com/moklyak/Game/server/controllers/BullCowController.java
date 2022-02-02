@@ -63,13 +63,15 @@ public class BullCowController {
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
-        answer = answer.substring(1, 5);
-        int ans = Integer.valueOf(answer);
+        
+        answer = answer.substring(1, answer.length() - 1);
+        
         if (answer.length() != 4 || answer.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
             return new ResponseEntity<>(cgd, HttpStatus.NOT_ACCEPTABLE);
         }
-
+        int ans = Integer.valueOf(answer);
+        
         int[][] info = ge.getGameInfo();
         if (Objects.equals(ge.getPlayerFirst(), user.getId())) {
 
@@ -110,14 +112,13 @@ public class BullCowController {
 
         GameEntity ge = gameDao.findByUserId(user.getId());
 
-        guess = guess.substring(1, 5);
-        int playerGuess = Integer.valueOf(guess);
+        guess = guess.substring(1, guess.length()- 1);
         // validate guess : distinct numbers in guess and number count is 4
         if (guess.length() != 4 || guess.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
             return new ResponseEntity<>(cgd, HttpStatus.NOT_ACCEPTABLE);
         }
-
+        int playerGuess = Integer.valueOf(guess);
         //resolve indexes for info field 
         int playerNum = -1;
         int iAnswer;
