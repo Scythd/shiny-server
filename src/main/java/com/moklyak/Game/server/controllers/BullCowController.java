@@ -63,39 +63,44 @@ public class BullCowController {
         User user = userDao.findByUsername(username);
 
         GameEntity ge = gameDao.findByUserId(user.getId());
-        
+
         answer = answer.substring(1, answer.length() - 1);
-        
+
         if (answer.length() != 4 || answer.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
             return new ResponseEntity<>(cgd, HttpStatus.NOT_ACCEPTABLE);
         }
         int ans = Integer.valueOf(answer);
-        
+
         int[][] info = ge.getGameInfo();
         if (Objects.equals(ge.getPlayerFirst(), user.getId())) {
 
             if (info[0][0] == -1) {
                 info[0][0] = ans;
+                ge.setGameInfo(info);
+                ge = gameDao.saveGame(ge);
             }
             // else erroe alredy set?
         } else if (Objects.equals(ge.getPlayerSecond(), user.getId())) {
 
             if (info[0][1] == -1) {
                 info[0][1] = ans;
+                ge.setGameInfo(info);
+                ge = gameDao.saveGame(ge);
             }
             // else erroe alredy set?
         } else {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
             // error user not from this game
         }
-        if (info[0][0] != -1 && info[0][1] != -1) {
+        if (info[0][0] != -1 && info[0][1] != -1 && GameState.STARTING.equals(ge.getGameState())) {
             ge.setTurn(1);
             ge.setGameState(GameState.RUNNING);
-            gameDao.eraseQueue(user.getId()); 
+            gameDao.eraseQueue(user.getId());
+            ge.setGameInfo(info);
+            ge = gameDao.saveGame(ge);
         }
-        ge.setGameInfo(info);
-        ge = gameDao.saveGame(ge);
+
         BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
         if (Objects.equals(user.getId(), cgd.getPlayerFirst())) {
             cgd.setPlayerNum(1);
@@ -112,7 +117,7 @@ public class BullCowController {
 
         GameEntity ge = gameDao.findByUserId(user.getId());
 
-        guess = guess.substring(1, guess.length()- 1);
+        guess = guess.substring(1, guess.length() - 1);
         // validate guess : distinct numbers in guess and number count is 4
         if (guess.length() != 4 || guess.chars().distinct().count() != 4) {
             BullCowGameDto cgd = ge.toBullCowGameDto(user.getId());
@@ -195,13 +200,12 @@ public class BullCowController {
                     // so first p isn't in win condition
                     if (info[2][info[2].length - 1] != 4) {
                         ge.setWinPlayer(WinSide.SECOND_PLAYER);
-                    } 
-                    // so first p is in win condition too
+                    } // so first p is in win condition too
                     else {
                         ge.setWinPlayer(WinSide.DRAW);
                     }
                     ge.setGameState(GameState.ENDED);
-                // second player is not in win condition
+                    // second player is not in win condition
                 } else {
                     // first p is in win condition
                     if (info[2][info[2].length - 1] == 4) {
